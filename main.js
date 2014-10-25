@@ -12,9 +12,12 @@ define(function (require, exports, module) {
         ProjectManager  = brackets.getModule("project/ProjectManager");
 
     var omnisharp = new NodeDomain('phoenix', ExtensionUtils.getModulePath(module, 'node/omnisharp'));
-
+    
+    $(omnisharp).on('omnisharpError', function (data) {
+        alert(data);
+    });
+    
     function startOmnisharp() {
-        alert(ProjectManager.getInitialProjectPath());
         var projectPath = ProjectManager.getInitialProjectPath();
         omnisharp.exec('startOmnisharp', projectPath)
             .done(function (port) {
@@ -30,10 +33,7 @@ define(function (require, exports, module) {
     }
 
     AppInit.appReady(function () {
-
         CommandManager.register('Start Omnisharp', 'mat-mcloughlin.phoenix.startOmnisharp', startOmnisharp);
-
         createMenu();
     });
-    
 });
