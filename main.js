@@ -3,73 +3,64 @@
 
 define(function (require, exports, module) {
     'use strict';
-
+    
     var CommandManager = brackets.getModule('command/CommandManager'),
         Menus = brackets.getModule('command/Menus'),
         AppInit = brackets.getModule('utils/AppInit'),
-        NodeDomain = brackets.getModule('utils/NodeDomain'),
-        ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
-        ProjectManager = brackets.getModule('project/ProjectManager'),
-        CodeInspection = brackets.getModule("language/CodeInspection");
-
-    var omnisharp = new NodeDomain('phoenix', ExtensionUtils.getModulePath(module, 'node/omnisharp'));
+        ProjectManager = brackets.getModule('project/ProjectManager');
     
-    $(omnisharp).on('omnisharpError', function (data) {
+    var globals = require('modules/globals'),
+        codeInspection = require('modules/codeInspection');
+
+    $(globals.omnisharp).on('omnisharpError', function (data) {
         alert(data);
+        globals.omnisharpRunning = false;
+    });
+    
+    $(globals.omnisharp).on('omnisharpExited', function () {
+        alert('Omnisharp is stopped');
+        globals.omnisharpRunning = false;
+    });
+    
+    $(globals.omnisharp).on('omnisharpReady', function () {
+        alert('Omnisharp Ready');
+        globals.omnisharpRunning = true;
     });
     
     function startOmnisharp() {
+        if (globals.omnisharpRunning) {
+            alert('Omnisharp is already running.');
+            return;
+        }
+        
         var projectPath = ProjectManager.getInitialProjectPath();
-        omnisharp.exec('startOmnisharp', projectPath)
+        globals.omnisharp.exec('startOmnisharp', projectPath)
             .done(function (port) {
-                alert('omnisharp started on: ' + port);
             }).fail(function (err) {
                 alert('fail: ' + err);
             });
     }
     
-    function validateFile(text, fullPath) {
-        var deferred = $.Deferred();
+    function stopOmnisharp() {
+        if (!globals.omnisharpRunning) {
+            alert('Omnisharp is not currently running');
+        }
         
-        var data = {
-            line: 1,
-            column: 1,
-            buffer: text,
-            filename: fullPath
-        };
-        
-        omnisharp.exec('callService', 'syntaxerrors', data)
-            .done(function (body) {
-                var errors = body.Errors.map(function (error) {
-                    return {
-                        pos: { line: error.Line, ch: error.Column },
-                        message: error.Message,
-                        type: CodeInspection.Type.error
-                    };
-                });
-                deferred.resolve({ errors: errors });
-            }).fail(function (err) {
-                alert(err);
-                deferred.reject();
-            });
-        
-        return deferred.promise();
+        globals.omnisharp.exec('stopOmnisharp');
     }
-    
+        
     function createMenu() {
         var menu = Menus.addMenu('Phoenix', 'mat-mcloughlin.phoenix.phoenixMenu');
         menu.addMenuItem('mat-mcloughlin.phoenix.startOmnisharp');
-        menu.addMenuItem('mat-mcloughlin.phoenix.checkFile');
+        menu.addMenuItem('mat-mcloughlin.phoenix.stopOmnisharp');
     }
 
     AppInit.appReady(function () {
         CommandManager.register('Start Omnisharp', 'mat-mcloughlin.phoenix.startOmnisharp', startOmnisharp);
-        CommandManager.register('Check file', 'mat-mcloughlin.phoenix.checkFile', validateFile);
+        CommandManager.register('Stop Omnisharp', 'mat-mcloughlin.phoenix.stopOmnisharp', stopOmnisharp);
+        
         createMenu();
         
-        CodeInspection.register('csharp', {
-            name: 'omnisharp',
-            scanFileAsync: validateFile
-        });
+        codeInspection.init();
     });
 });

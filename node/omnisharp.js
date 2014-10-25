@@ -10,7 +10,8 @@ maxerr: 50, node: true */
         spawn = require('child_process').spawn,
         net = require('net');
 
-    var _omnisharpProcess,
+    var _domainName = 'phoenix',
+        _omnisharpProcess,
         _domainManager,
         _omnisharpLocation,
         _port;
@@ -46,23 +47,49 @@ maxerr: 50, node: true */
             }
             
             _port = port;
-            _omnisharpProcess = spawn('mono', [ _omnisharpLocation + '/omnisharp.exe', '-p', _port, '-s', projectLocation]);
+
+            var location = _omnisharpLocation + '/omnisharp.exe',
+                isMono = process.platform !== 'win32',
+                args = ['-p', _port, '-s', projectLocation],
+                executable;
+
+            if (isMono) {
+                executable = 'mono';
+                args.unshift(location);
+            } else {
+                executable = location;
+            }
+            
+            _omnisharpProcess = spawn(executable, args);
             
             _omnisharpProcess.stdout.on('data', function (data) {
                 console.info(data.toString());
+                var ready = (data.toString().match(/Solution has finished loading/) || 0).length > 0;
+                
+                if (ready) {
+                    _domainManager.emitEvent(_domainName, 'omnisharpReady');
+                }
             });
             
             _omnisharpProcess.stderr.on('data', function (data) {
                 console.error(data.toString());
-                _domainManager.emitEvent('phoenix', 'onmisharpError', data);
+                _domainManager.emitEvent(_domainName, 'omnisharpError', data);
             });
             
             _omnisharpProcess.on('close', function (data) {
-                console.log(data);
+                console.info(data);
+                _domainManager.emitEvent(_domainName, 'omnisharpExited', data);
             });
             
             callback(null, _port);
         });
+    }
+    
+    function stopOmnisharp() {
+        if (_omnisharpLocation !== null) {
+            _omnisharpProcess.kill('SIGKILL');
+            _omnisharpProcess = null;
+        }
     }
     
     function callService(service, data, callback) {
@@ -77,46 +104,23 @@ maxerr: 50, node: true */
             }
         });
     }
-    
-//    function cmdSendRequest(url, line, column, buffer, filename, callbackfn) {
-//
-//        var httpbody = {};
-//        httpbody.line = line || 1;
-//        httpbody.column = column || 1;
-//        httpbody.buffer = buffer || 'namespace MyApp {     using System;      class Program     {         public static void Main(string[] args)         {             Console.WriteLine("Running a http server on port 1924");                              Console.ReadKey()         }     } }';
-//        httpbody.filename = filename || 'main.cs';
-//
-//        var omniurl = url || "/syntaxerrors";
-//
-//        request.post('http://localhost:2000' + omniurl, {
-//            json: httpbody
-//        }, function (error, response, body) {
-//            console.info(body);
-//            console.info(callbackfn);
-//            if (!error && response.statusCode === 200) {
-//                callbackfn(null, body);
-//            } else {
-//                callbackfn('oops:' + response);
-//            }
-//        });
-//    }
-//
+
     function init(domainManager) {
         _domainManager = domainManager;
         _omnisharpLocation = getOmnisharpLocation();
         
-        if (!_domainManager.hasDomain('phoenix')) {
-            _domainManager.registerDomain('phoenix', {
+        if (!_domainManager.hasDomain(_domainName)) {
+            _domainManager.registerDomain(_domainName, {
                 major: 0,
                 minor: 1
             });
         }
         
         _domainManager.registerCommand(
-            'phoenix', // domain name
-            'startOmnisharp', // command name
-            startOmnisharp, // command handler function
-            true, // this command is synchronous
+            _domainName,
+            'startOmnisharp',
+            startOmnisharp,
+            true,
             'Starts omnisharp server',
             [{
                 name: 'projectLoction',
@@ -127,7 +131,17 @@ maxerr: 50, node: true */
         );
         
         _domainManager.registerCommand(
-            'phoenix',
+            _domainName,
+            'stopOmnisharp',
+            stopOmnisharp,
+            false,
+            'Stops omnisharp server',
+            [],
+            []
+        );
+        
+        _domainManager.registerCommand(
+            _domainName,
             'callService',
             callService,
             true,
@@ -148,14 +162,17 @@ maxerr: 50, node: true */
                  
         
         _domainManager.registerEvent(
-            'phoenix',
-            'onmisharpError',
+            _domainName,
+            'omnisharpError',
             [{
                 name: 'data',
                 type: 'string',
                 description: 'stderr output'
             }]
         );
+        
+        _domainManager.registerEvent(_domainName, 'omnisharpReady', []);
+        _domainManager.registerEvent(_domainName, 'omnisharpExited', []);
     }
 
     exports.init = init;
