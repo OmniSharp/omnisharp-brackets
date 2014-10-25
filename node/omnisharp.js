@@ -12,7 +12,8 @@ maxerr: 50, node: true */
 
     var _omnisharpProcess,
         _domainManager,
-        _omnisharpLocation;
+        _omnisharpLocation,
+        _port;
     
     function findFreePort(callback) {
         var server = net.createServer(),
@@ -37,13 +38,15 @@ maxerr: 50, node: true */
     }
     
     function startOmnisharp(projectLocation, callback) {
+        console.info('launching omnisharp');
         projectLocation = '/users/mjmcloug/documents/test';
         findFreePort(function (err, port) {
             if (err !== null) {
-                callback(err, null);
+                callback(err);
             }
-
-            _omnisharpProcess = spawn('mono', [ _omnisharpLocation + '/omnisharp.exe', '-p', port, '-s', projectLocation]);
+            
+            _port = port;
+            _omnisharpProcess = spawn('mono', [ _omnisharpLocation + '/omnisharp.exe', '-p', _port, '-s', projectLocation]);
             
             _omnisharpProcess.stdout.on('data', function (data) {
                 console.info(data.toString());
@@ -58,7 +61,20 @@ maxerr: 50, node: true */
                 console.log(data);
             });
             
-            callback(null, port);
+            callback(null, _port);
+        });
+    }
+    
+    function callService(service, data, callback) {
+        console.info('making omnisharp request: ' + service);
+        var url = 'http://localhost:' + _port + '/' + service;
+        request.post(url, { json: data }, function (err, res, body) {
+            console.info(body);
+            if (!err && res.statusCode === 200) {
+                callback(null, body);
+            } else {
+                callback(err);
+            }
         });
     }
     
@@ -95,12 +111,13 @@ maxerr: 50, node: true */
                 minor: 1
             });
         }
+        
         _domainManager.registerCommand(
             'phoenix', // domain name
             'startOmnisharp', // command name
             startOmnisharp, // command handler function
             true, // this command is synchronous
-            'Starts Omnisharp server',
+            'Starts omnisharp server',
             [{
                 name: 'projectLoction',
                 type: 'string',
@@ -108,6 +125,27 @@ maxerr: 50, node: true */
             }],
             []
         );
+        
+        _domainManager.registerCommand(
+            'phoenix',
+            'callService',
+            callService,
+            true,
+            'Make a request to omnisharp server',
+            [
+                {
+                    name: 'service',
+                    type: 'string',
+                    description: 'The name of the onmisharp service'
+                },
+                {
+                    name: 'data',
+                    type: 'json',
+                    description: 'Data to send to omnisharp service'
+                }
+            ]
+        );
+                 
         
         _domainManager.registerEvent(
             'phoenix',
