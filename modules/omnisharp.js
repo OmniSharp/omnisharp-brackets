@@ -3,7 +3,7 @@
 
 define(function (require, exports, module) {
     'use strict';
-    
+
     var NodeDomain = brackets.getModule('utils/NodeDomain'),
         ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
         ProjectManager = brackets.getModule('project/ProjectManager');
