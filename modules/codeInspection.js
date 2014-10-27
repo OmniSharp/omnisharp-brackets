@@ -3,31 +3,35 @@
 
 define(function (require, exports, module) {
     'use strict';
-    
+
     var CodeInspection = brackets.getModule("language/CodeInspection");
-    
+    var editorManager = brackets.getModule("editor/EditorManager");
+
     var omnisharp = require('modules/omnisharp');
-    
+
     function validateFile(text, fullPath) {
         var deferred = $.Deferred();
 
+        var editor = editorManager.getActiveEditor();
+        var cursorPos = editor.getCursorPos(true,"start");
+
         var data = {
-            line: 1,
-            column: 1,
+            line: cursorPos.line + 1,
+            column: cursorPos.ch + 1,
             buffer: text,
             filename: fullPath
         };
-        
+
         //'codecheck'
         omnisharp.makeRequest('codecheck', data, function (err, data) {
             if (err !== null) {
                 deferred.reject();
             }
-            
+
             var result = {
                 errors: []
             };
-            
+
             if (data.Errors !== undefined) {
                 result.errors = data.Errors.map(function (error) {
                     return {
@@ -37,7 +41,7 @@ define(function (require, exports, module) {
                     };
                 });
             }
-            
+
             if (data.QuickFixes !== undefined) {
                 result.errors = data.QuickFixes.map(function (quickFix) {
                     return {
@@ -47,13 +51,13 @@ define(function (require, exports, module) {
                     };
                 });
             }
-            
+
             deferred.resolve(result);
         });
-        
+
         return deferred.promise();
     }
-    
+
     return {
         init: function () {
             CodeInspection.register('csharp', {
