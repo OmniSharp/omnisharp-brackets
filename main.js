@@ -9,46 +9,10 @@ define(function (require, exports, module) {
         AppInit = brackets.getModule('utils/AppInit'),
         ProjectManager = brackets.getModule('project/ProjectManager');
     
-    var globals = require('modules/globals'),
-        codeInspection = require('modules/codeInspection');
+    var omnisharp = require('modules/omnisharp'),
+        codeInspection = require('modules/codeInspection'),
+        contextMenu = require('modules/contextMenu');
 
-    $(globals.omnisharp).on('omnisharpError', function (data) {
-        alert(data);
-        globals.omnisharpRunning = false;
-    });
-    
-    $(globals.omnisharp).on('omnisharpExited', function () {
-        alert('Omnisharp is stopped');
-        globals.omnisharpRunning = false;
-    });
-    
-    $(globals.omnisharp).on('omnisharpReady', function () {
-        alert('Omnisharp Ready');
-        globals.omnisharpRunning = true;
-    });
-    
-    function startOmnisharp() {
-        if (globals.omnisharpRunning) {
-            alert('Omnisharp is already running.');
-            return;
-        }
-        
-        var projectPath = ProjectManager.getInitialProjectPath();
-        globals.omnisharp.exec('startOmnisharp', projectPath)
-            .done(function (port) {
-            }).fail(function (err) {
-                alert('fail: ' + err);
-            });
-    }
-    
-    function stopOmnisharp() {
-        if (!globals.omnisharpRunning) {
-            alert('Omnisharp is not currently running');
-        }
-        
-        globals.omnisharp.exec('stopOmnisharp');
-    }
-        
     function createMenu() {
         var menu = Menus.addMenu('Phoenix', 'mat-mcloughlin.phoenix.phoenixMenu');
         menu.addMenuItem('mat-mcloughlin.phoenix.startOmnisharp');
@@ -56,11 +20,13 @@ define(function (require, exports, module) {
     }
 
     AppInit.appReady(function () {
-        CommandManager.register('Start Omnisharp', 'mat-mcloughlin.phoenix.startOmnisharp', startOmnisharp);
-        CommandManager.register('Stop Omnisharp', 'mat-mcloughlin.phoenix.stopOmnisharp', stopOmnisharp);
+        CommandManager.register('Start Omnisharp', 'mat-mcloughlin.phoenix.startOmnisharp', omnisharp.start);
+        CommandManager.register('Stop Omnisharp', 'mat-mcloughlin.phoenix.stopOmnisharp', omnisharp.stop);
         
         createMenu();
         
         codeInspection.init();
+        omnisharp.init();
+        contextMenu.init();
     });
 });
