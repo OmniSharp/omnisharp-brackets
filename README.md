@@ -1,8 +1,8 @@
 omnisharp-brackets
 ==================
 
-Completed
-=========
+Completed(ish)
+==============
 
 1. Code Fixes
 2. Navigate to
