@@ -14,6 +14,7 @@ define(function (require, exports, module) {
         init: function () {
             CommandManager.register('Goto Definition', 'mat-mcloughlin.omnisharp-brackets.gotoDefinition', CodeNavigation.gotoDefinition);
             CommandManager.register('Format Document', 'mat-mcloughlin.omnisharp-brackets.formatDocument', CodeFormat.formatDocument);
+            CommandManager.register('Fix Usings', 'mat-mcloughlin.omnisharp-brackets.fixUsings', CodeFormat.fixUsings);
 
             var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
 
@@ -21,9 +22,11 @@ define(function (require, exports, module) {
                 if (Helpers.isCSharp()) {
                     contextMenu.addMenuItem('mat-mcloughlin.omnisharp-brackets.gotoDefinition');
                     contextMenu.addMenuItem('mat-mcloughlin.omnisharp-brackets.formatDocument');
+                    contextMenu.addMenuItem('mat-mcloughlin.omnisharp-brackets.fixUsings');
                 } else {
                     contextMenu.removeMenuItem('mat-mcloughlin.omnisharp-brackets.gotoDefinition');
                     contextMenu.removeMenuItem('mat-mcloughlin.omnisharp-brackets.formatDocument');
+                    contextMenu.removeMenuItem('mat-mcloughlin.omnisharp-brackets.fixUsings');
                 }
             });
         }
