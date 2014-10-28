@@ -48,17 +48,17 @@ define(function (require, exports, module) {
 
     return {
         init: function () {
-            CommandManager.register('Goto Definition', 'mat-mcloughlin.phoenix.gotoDefinition', gotoDefinition);
-            CommandManager.register('Format Document', 'mat-mcloughlin.phoenix.formatDocument', formatDocument);
+            CommandManager.register('Goto Definition', 'mat-mcloughlin.omnisharp-brackets.gotoDefinition', gotoDefinition);
+            CommandManager.register('Format Document', 'mat-mcloughlin.omnisharp-brackets.formatDocument', formatDocument);
 
             var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
 
             $(contextMenu).on("beforeContextMenuOpen", function () {
                 if (isCSharp()) {
-                    contextMenu.addMenuItem('mat-mcloughlin.phoenix.gotoDefinition');
-                    contextMenu.addMenuItem('mat-mcloughlin.phoenix.formatDocument');
+                    contextMenu.addMenuItem('mat-mcloughlin.omnisharp-brackets.gotoDefinition');
+                    contextMenu.addMenuItem('mat-mcloughlin.omnisharp-brackets.formatDocument');
                 } else {
-                    contextMenu.removeMenuItem('mat-mcloughlin.phoenix.gotoDefinition');
+                    contextMenu.removeMenuItem('mat-mcloughlin.omnisharp-brackets.gotoDefinition');
                 }
             });
         }

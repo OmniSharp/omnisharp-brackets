@@ -8,7 +8,7 @@ define(function (require, exports, module) {
         ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
         ProjectManager = brackets.getModule('project/ProjectManager');
 
-    var omnisharp = new NodeDomain('phoenix', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
+    var omnisharp = new NodeDomain('omnisharp-brackets', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
 
     return {
         isRunning: false,
@@ -53,8 +53,12 @@ define(function (require, exports, module) {
         },
         makeRequest: function (service, data, callback) {
             omnisharp.exec('callService', /*'codecheck'*/ service, data)
-                .done(function (body) { callback(null, body); })
-                .fail(function (err) { callback(err, null); });
+                .done(function (body) {
+                    callback(null, body);
+                })
+                .fail(function (err) {
+                    callback(err, null);
+                });
         }
     };
 });

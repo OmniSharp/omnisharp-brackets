@@ -10,7 +10,7 @@ maxerr: 50, node: true */
         spawn = require('child_process').spawn,
         net = require('net');
 
-    var _domainName = 'phoenix',
+    var _domainName = 'omnisharp-brackets',
         _omnisharpProcess,
         _domainManager,
         _omnisharpLocation,
