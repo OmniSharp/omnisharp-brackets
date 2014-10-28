@@ -4,24 +4,31 @@
 define(function (require, exports, module) {
     'use strict';
 
-    var EditorManager = brackets.getModule("editor/EditorManager"),
-        DocumentManager = brackets.getModule('document/DocumentManager'),
+    var EditorManager = brackets.getModule('editor/EditorManager'),
+        CommandManager = brackets.getModule('command/CommandManager'),
+        Commands = brackets.getModule('command/Commands'),
+        FileUtils = brackets.getModule('file/FileUtils'),
         Omnisharp = require('modules/omnisharp'),
         Helpers = require('modules/helpers');
 
     return {
         gotoDefinition: function () {
-            var document = DocumentManager.getCurrentDocument();
-            var filename = document.file._path;
-
             var data = Helpers.buildRequest();
 
             Omnisharp.makeRequest('gotoDefinition', data, function (err, data) {
                 if (err !== null) {
                     console.error(err);
                 }
+                
+                if (data.FileName === null) {
+                    return;
+                }
+                
+                var unixPath = FileUtils.convertWindowsPathToUnixPath(data.FileName);
+                CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' });
 
-                var document = DocumentManager.getDocumentForPath(data.FileName);
+                var editor = EditorManager.getActiveEditor();
+                editor.setCursorPos(data.Line - 1, data.Column - 1, true);
             });
         }
     };
