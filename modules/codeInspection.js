@@ -4,26 +4,16 @@
 define(function (require, exports, module) {
     'use strict';
 
-    var CodeInspection = brackets.getModule("language/CodeInspection");
-    var editorManager = brackets.getModule("editor/EditorManager");
-
-    var omnisharp = require('modules/omnisharp');
+    var CodeInspection = brackets.getModule("language/CodeInspection"),
+        Helpers = require('modules/helpers'),
+        Omnisharp = require('modules/omnisharp');
 
     function validateFile(text, fullPath) {
         var deferred = $.Deferred();
 
-        var editor = editorManager.getActiveEditor();
-        var cursorPos = editor.getCursorPos(true,"start");
+        var data = Helpers.buildRequest();
 
-        var data = {
-            line: cursorPos.line + 1,
-            column: cursorPos.ch + 1,
-            buffer: text,
-            filename: fullPath
-        };
-
-        //'codecheck'
-        omnisharp.makeRequest('codecheck', data, function (err, data) {
+        Omnisharp.makeRequest('codecheck', data, function (err, data) {
             if (err !== null) {
                 deferred.reject();
             }
