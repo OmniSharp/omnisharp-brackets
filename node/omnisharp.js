@@ -5,7 +5,7 @@ maxerr: 50, node: true */
 (function () {
     'use strict';
 
-    var os = require('os'),
+    var path = require('path'),
         request = require('request'),
         spawn = require('child_process').spawn,
         net = require('net');
@@ -13,7 +13,6 @@ maxerr: 50, node: true */
     var _domainName = 'omnisharp-brackets',
         _omnisharpProcess,
         _domainManager,
-        _omnisharpLocation,
         _port;
 
     function findFreePort(callback) {
@@ -33,12 +32,11 @@ maxerr: 50, node: true */
     }
 
     function getOmnisharpLocation() {
-        var indexOf = __dirname.lastIndexOf('/');
-        var location = __dirname.substring(0, indexOf);
-        return location + '/omnisharp';
+        return path.join(__dirname, '..', 'omnisharp', 'omnisharp.exe');
     }
 
     function startOmnisharp(projectLocation, callback) {
+
         console.info('launching omnisharp');
 
         findFreePort(function (err, port) {
@@ -48,7 +46,7 @@ maxerr: 50, node: true */
 
             _port = port;
 
-            var location = _omnisharpLocation + '/omnisharp.exe',
+            var location = getOmnisharpLocation(),
                 isMono = process.platform !== 'win32',
                 args = ['-p', _port, '-s', projectLocation],
                 executable;
@@ -86,7 +84,7 @@ maxerr: 50, node: true */
     }
 
     function stopOmnisharp() {
-        if (_omnisharpLocation !== null) {
+        if (_omnisharpProcess !== null) {
             _omnisharpProcess.kill('SIGKILL');
             _omnisharpProcess = null;
         }
@@ -96,7 +94,9 @@ maxerr: 50, node: true */
         var url = 'http://localhost:' + _port + '/' + service;
         console.info('making omnisharp request: ' + url);
         console.info(data);
-        request.post(url, { json: data }, function (err, res, body) {
+        request.post(url, {
+            json: data
+        }, function (err, res, body) {
             console.info(body);
             if (!err && res.statusCode === 200) {
                 callback(null, body);
@@ -108,7 +108,6 @@ maxerr: 50, node: true */
 
     function init(domainManager) {
         _domainManager = domainManager;
-        _omnisharpLocation = getOmnisharpLocation();
 
         if (!_domainManager.hasDomain(_domainName)) {
             _domainManager.registerDomain(_domainName, {
