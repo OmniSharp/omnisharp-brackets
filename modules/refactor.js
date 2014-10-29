@@ -15,23 +15,48 @@ define(function (require, exports, module) {
         Dialogs = brackets.getModule("widgets/Dialogs"),
         DefaultDialogs  = brackets.getModule("widgets/DefaultDialogs"),
         Omnisharp = require('modules/omnisharp'),
-        Helpers = require('modules/helpers');
+        Helpers = require('modules/helpers'),
+        FileUtils = brackets.getModule('file/FileUtils'),
+        CommandManager = brackets.getModule('command/CommandManager'),
+        Commands = brackets.getModule('command/Commands'),
+        Strings = require('strings');
 
-    return {
-        rename: function () {
-            Dialogs.showModalDialog(
-                DefaultDialogs.DIALOG_ID_SAVE_CLOSE,
-                'Rename',
-                '<input type="text" id="mat-mcloughlin.omnisharp-brackets.renameValue" />',
-                [
-                    { className: 'Primary', id: 'mat-mcloughlin.omnisharp-brackets.renameOk', text: 'Ok' },
-                    { className: 'left', id: 'mat-mcloughlin.omnisharp-brackets.renameCancel', text: 'Cancel' }
-                ],
-                true
-            ).done(function (buttonId) {
-                // Only call rename if ok is clicked
-                alert('hello');
+    var $input;
+    
+    function onClose(buttonId) {
+        var renameTo = $input.val();
+
+        if (buttonId === Strings.renameOk && renameTo !== undefined) {
+            var data = Helpers.buildRequest();
+            data.renameto = renameTo;
+            
+            Omnisharp.makeRequest('rename', data, function (err, data) {
+                data.Changes.forEach(function (change) {
+                    var unixPath = FileUtils.convertWindowsPathToUnixPath(change.FileName);
+                    DocumentManager.getDocumentForPath(unixPath).done(function (document) {
+                        document.setText(change.Buffer);
+                    });
+                });
             });
         }
+    }
+    
+    function rename() {
+        Dialogs.showModalDialog(
+            DefaultDialogs.DIALOG_ID_SAVE_CLOSE,
+            'Rename',
+            '<input style="margin-bottom:-18px;" type="text" id="renameInput" />',
+            [
+                { className: 'Primary', id: Strings.renameOk, text: 'Ok' },
+                { className: 'left', id: Strings.renameCancel, text: 'Cancel' }
+            ],
+            true
+        ).done(onClose);
+
+        $input = $('#renameInput');
+    }
+    
+    return {
+        rename: rename
     };
 });
