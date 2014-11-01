@@ -4,7 +4,8 @@
 define(function (require, exports, module) {
     'use strict';
 
-    var CodeInspection = brackets.getModule("language/CodeInspection"),
+    var AppInit = brackets.getModule('utils/AppInit'),
+        CodeInspection = brackets.getModule("language/CodeInspection"),
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp');
 
@@ -47,13 +48,15 @@ define(function (require, exports, module) {
 
         return deferred.promise();
     }
+    
+    function onOmnisharpReady() {
+        CodeInspection.register('csharp', {
+            name: 'omnisharp',
+            scanFileAsync: validateFile
+        });
+    }
 
-    return {
-        init: function () {
-            CodeInspection.register('csharp', {
-                name: 'omnisharp',
-                scanFileAsync: validateFile
-            });
-        }
-    };
+    AppInit.appReady(function () {
+        $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
+    });
 });

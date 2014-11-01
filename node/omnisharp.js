@@ -36,6 +36,7 @@ maxerr: 50, node: true */
     }
 
     function startOmnisharp(projectLocation, callback) {
+        _domainManager.emitEvent(_domainName, 'omnisharpStarting');
 
         console.info('launching omnisharp');
 
@@ -171,6 +172,7 @@ maxerr: 50, node: true */
             }]
         );
 
+        _domainManager.registerEvent(_domainName, 'omnisharpStarting', []);
         _domainManager.registerEvent(_domainName, 'omnisharpReady', []);
         _domainManager.registerEvent(_domainName, 'omnisharpExited', []);
     }
