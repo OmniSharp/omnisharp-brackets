@@ -9,25 +9,27 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         Helpers = require('modules/helpers');
 
-    function refreshDocument(service, errorMessage) {
+    function refreshDocument(service) {
         var document = DocumentManager.getCurrentDocument();
         var data = Helpers.buildRequest();
 
         Omnisharp.makeRequest(service, data, function (err, data) {
             if (err !== null) {
-                console.error(errorMessage);
+                console.error(err);
             }
 
             document.setText(data.Buffer);
         });
     }
     
-    return {
-        formatDocument: function () {
-            refreshDocument('codeformat', 'Error formatting document');
-        },
-        fixUsings: function () {
-            refreshDocument('fixusings', 'Error fixing using statements');
-        }
-    };
+    function formatDocument() {
+        refreshDocument('codeformat');
+    }
+    
+    function fixUsings() {
+        refreshDocument('fixusings');
+    }
+    
+    exports.fixUsings = fixUsings;
+    exports.formatDocument = formatDocument;
 });

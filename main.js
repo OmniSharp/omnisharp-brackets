@@ -27,7 +27,6 @@ define(function (require, exports, module) {
 
         createMenu();
 
-        ContextMenu.init();
         Intellisense.init();
     });
 });

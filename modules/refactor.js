@@ -56,7 +56,5 @@ define(function (require, exports, module) {
         $input = $('#renameInput');
     }
     
-    return {
-        rename: rename
-    };
+    exports.rename = rename;
 });

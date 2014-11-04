@@ -11,25 +11,25 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         Helpers = require('modules/helpers');
 
-    return {
-        gotoDefinition: function () {
-            var data = Helpers.buildRequest();
+    function goToDefinition() {
+        var data = Helpers.buildRequest();
 
-            Omnisharp.makeRequest('gotoDefinition', data, function (err, data) {
-                if (err !== null) {
-                    console.error(err);
-                }
-                
-                if (data.FileName === null) {
-                    return;
-                }
-                
-                var unixPath = FileUtils.convertWindowsPathToUnixPath(data.FileName);
-                CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' });
+        Omnisharp.makeRequest('gotoDefinition', data, function (err, data) {
+            if (err !== null) {
+                console.error(err);
+            }
 
-                var editor = EditorManager.getActiveEditor();
-                editor.setCursorPos(data.Line - 1, data.Column - 1, true);
-            });
-        }
-    };
+            if (data.FileName === null) {
+                return;
+            }
+
+            var unixPath = FileUtils.convertWindowsPathToUnixPath(data.FileName);
+            CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' });
+
+            var editor = EditorManager.getActiveEditor();
+            editor.setCursorPos(data.Line - 1, data.Column - 1, true);
+        });
+    }
+    
+    exports.gotoDefinition = goToDefinition;
 });
