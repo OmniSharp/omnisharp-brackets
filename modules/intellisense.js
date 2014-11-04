@@ -80,9 +80,12 @@ define(function (require, exports, module) {
 //    }
     
     function getCompletion(completion) {
+        var completionText = completion.Snippet || completion.CompletionText;
         return '<span data-completiontext="' +
-            completion.CompletionText +
-            '">' +
+            completionText +
+            '" data-issnippet="' +
+            (completion.Snippet !== false).toString() +
+            '" >' +
             completion.DisplayText +
             ' : <strong>' +
             completion.ReturnType +
