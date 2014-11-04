@@ -13,20 +13,23 @@ define(function (require, exports, module) {
         CodeInspection = require('modules/codeInspection'),
         ContextMenu = require('modules/contextMenu'),
         CodeFormat = require('modules/codeFormat'),
-        Intellisense = require('modules/intellisense');
+        Intellisense = require('modules/intellisense'),
+        Snippets = require('modules/snippets');
 
     function createMenu() {
         var menu = Menus.addMenu('Omnisharp', Strings.omnisharpMenu);
-        menu.addMenuItem('mat-mcloughlin.omnisharp-brackets.formatDocument');
-        menu.addMenuItem('mat-mcloughlin.omnisharp-brackets.fixUsings');
+        menu.addMenuItem('mat-mcloughlin.omnisharp.formatDocument');
+        menu.addMenuItem('mat-mcloughlin.omnisharp.fixUsings');
     }
-
+    
     AppInit.appReady(function () {
-        CommandManager.register('Format Document', 'mat-mcloughlin.omnisharp-brackets.formatDocument', CodeFormat.formatDocument);
-        CommandManager.register('Fix Usings', 'mat-mcloughlin.omnisharp-brackets.fixUsings', CodeFormat.fixUsings);
+        CommandManager.register('Format Document', 'mat-mcloughlin.omnisharp.formatDocument', CodeFormat.formatDocument);
+        CommandManager.register('Fix Usings', 'mat-mcloughlin.omnisharp.fixUsings', CodeFormat.fixUsings);
 
         createMenu();
 
         Intellisense.init();
+        
+        
     });
 });

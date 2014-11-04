@@ -7,7 +7,8 @@ define(function (require, exports, module) {
     var CodeHintManager = brackets.getModule('editor/CodeHintManager'),
         EditorManager = brackets.getModule("editor/EditorManager"),
         Helpers = require('modules/helpers'),
-        Omnisharp = require('modules/omnisharp');
+        Omnisharp = require('modules/omnisharp'),
+        Snippets = require('modules/snippets');
 
     var tokenRegEx = /[A-Za-z0-9_]/;
     
@@ -111,6 +112,11 @@ define(function (require, exports, module) {
                 
     }
     
+    function prepSnippet(completionText) {
+        var snippet = completionText.replace(/\{\d\:/g, '{');
+        return snippet.replace('$0', '${cursor}');
+    }
+    
     var intellisense = {
         hasHints: function (editor, implicitChar) {
             if (implicitChar === ' ' || implicitChar === null || implicitChar === '.') {
@@ -154,7 +160,8 @@ define(function (require, exports, module) {
         },
         insertHint: function (hint) {
             var editor = EditorManager.getActiveEditor(),
-                completionText = $(hint).data().completiontext,
+                data = $(hint).data(),
+                completionText = data.completiontext,
                 cursor = getCursor(),
                 token = getToken(cursor),
                 adjustment = tokenRegEx.test(token.string) ? 0 : 1;
@@ -170,7 +177,12 @@ define(function (require, exports, module) {
                 ch: cursor.ch + adjustment
             };
 
-            editor._codeMirror.replaceRange(completionText, start, end);
+            if (data.issnippet) {
+                var snippet = prepSnippet(completionText);
+                Snippets.install({ from: start, to: end }, snippet);
+            } else {
+                editor._codeMirror.replaceRange(completionText, start, end);
+            }
     
             return false;
         }
