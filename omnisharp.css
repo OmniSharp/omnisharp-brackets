@@ -1,0 +1,11 @@
+#omnisharp-notification {
+    content: "O";
+}
+
+#omnisharp-notification.active {
+    color: green;
+}
+
+#omnisharp-notification.inactive {
+    color: grey;
+}
