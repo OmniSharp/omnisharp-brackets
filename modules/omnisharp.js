@@ -13,8 +13,7 @@ define(function (require, exports, module) {
         DefaultDialogs  = brackets.getModule("widgets/DefaultDialogs"),
         Omnisharp = new NodeDomain('omnisharp-brackets', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
     
-    var isRunning = false,
-        dialog;
+    var isRunning = false;
     
     function start() {
         if (isRunning) {
@@ -48,27 +47,22 @@ define(function (require, exports, module) {
     function onOmnisharpError(data) {
         console.error(data);
         isRunning = false;
+        $(exports).triggerHandler('omnisharpError');
     }
     
-    function onOmnisharpExited() {
-        console.info('Omnisharp has stopped');
+    function onOmnisharpQuit() {
+        console.info('Omnisharp has quit');
         isRunning = false;
+        $(exports).triggerHandler('omnisharpQuit');
     }
     
     function onOmnisharpReady() {
-        dialog.close();
         isRunning = true;
         $(exports).triggerHandler('omnisharpReady');
     }
     
     function onOmnisharpStarting() {
-        dialog = Dialogs.showModalDialog(
-            DefaultDialogs.DIALOG_ID_EXT_CHANGED,
-            '',
-            'Launching Omnisharp',
-            [],
-            true
-        );
+        $(exports).triggerHandler('omnisharpStarting');
     }
     
     function onActiveEditorChange(event, newActive, oldActive) {
@@ -89,7 +83,7 @@ define(function (require, exports, module) {
     
     AppInit.appReady(function () {
         $(Omnisharp).on('omnisharpError', onOmnisharpError);
-        $(Omnisharp).on('omnisharpExited', onOmnisharpExited);
+        $(Omnisharp).on('omnisharpQuit', onOmnisharpQuit);
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpStarting', onOmnisharpStarting);
         $(EditorManager).on('activeEditorChange', onActiveEditorChange);

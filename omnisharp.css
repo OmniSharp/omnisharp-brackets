@@ -1,0 +1,36 @@
+#omnisharp-notification {
+    background-image: url(omnisharp.png); 
+    background-position: 0 -48px;
+    margin-left: 1px;
+}
+
+#omnisharp-notification .loadingSpan{
+    display: none;
+}
+
+#omnisharp-notification.starting .loadingSpan {
+    position: absolute;
+    display: inline;
+    background-image: url(omnisharp.png); 
+    background-position: 0 -24px;
+    height: 24px;
+    width: 24px;
+    left: 3px;
+    -webkit-animation-name: fade;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-duration: 1s;
+}
+
+@-webkit-keyframes fade {
+    0% {opacity: 0;}
+    50% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+#omnisharp-notification.ready {
+    background-position: 0 -24px;
+}
+
+#omnisharp-notification.error {
+    background-position: 0 -0px;
+}
