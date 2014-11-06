@@ -26,7 +26,7 @@ define(function (require, exports, module) {
             if (data.Errors !== undefined) {
                 result.errors = data.Errors.map(function (error) {
                     return {
-                        pos: { line: error.Line - 1, ch: error.Column },
+                        pos: { line: error.Line - 1, ch: error.Column - 1 },
                         message: error.Message,
                         type: CodeInspection.Type.error
                     };
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
             if (data.QuickFixes !== undefined) {
                 result.errors = data.QuickFixes.map(function (quickFix) {
                     return {
-                        pos: { line: quickFix.Line - 1, ch: quickFix.Column },
+                        pos: { line: quickFix.Line - 1, ch: quickFix.Column - 1 },
                         message: quickFix.Text,
                         type: CodeInspection.Type.warning
                     };
