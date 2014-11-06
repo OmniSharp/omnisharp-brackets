@@ -34,8 +34,5 @@ define(function (require, exports, module) {
         createMenu();
 
         Intellisense.init();
-        Toolbar.init();
-        
-        
     });
 });
