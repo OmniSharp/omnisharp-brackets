@@ -66,6 +66,10 @@ define(function (require, exports, module) {
     }
     
     function onActiveEditorChange(event, newActive, oldActive) {
+        if (newActive === null) {
+            return;
+        }
+        
         var document = newActive.document;
         if (document === null) {
             return;

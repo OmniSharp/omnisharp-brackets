@@ -9,6 +9,10 @@ define(function (require, exports, module) {
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp');
 
+    function getLogLevel(logLevel) {
+        return logLevel === 'Error' ? CodeInspection.Type.ERROR : CodeInspection.Type.WARNING;
+    }
+    
     function validateFile(text, fullPath) {
         var deferred = $.Deferred();
 
@@ -26,9 +30,9 @@ define(function (require, exports, module) {
             if (data.Errors !== undefined) {
                 result.errors = data.Errors.map(function (error) {
                     return {
-                        pos: { line: error.Line - 1, ch: error.Column - 1 },
+                        pos: { line: error.Line - 1, ch: error.Column },
                         message: error.Message,
-                        type: CodeInspection.Type.error
+                        type: getLogLevel(error.LogLevel)
                     };
                 });
             }
@@ -36,9 +40,9 @@ define(function (require, exports, module) {
             if (data.QuickFixes !== undefined) {
                 result.errors = data.QuickFixes.map(function (quickFix) {
                     return {
-                        pos: { line: quickFix.Line - 1, ch: quickFix.Column - 1 },
+                        pos: { line: quickFix.Line - 1, ch: quickFix.Column },
                         message: quickFix.Text,
-                        type: CodeInspection.Type.warning
+                        type: getLogLevel(quickFix.LogLevel)
                     };
                 });
             }

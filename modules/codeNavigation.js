@@ -24,12 +24,12 @@ define(function (require, exports, module) {
             }
 
             var unixPath = FileUtils.convertWindowsPathToUnixPath(data.FileName);
-            CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' });
-
-            var editor = EditorManager.getActiveEditor();
-            editor.setCursorPos(data.Line - 1, data.Column - 1, true);
+            CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' }).done(function () {
+                var editor = EditorManager.getActiveEditor();
+                editor.setCursorPos(data.Line - 1, data.Column - 1, true);
+            });
         });
     }
     
-    exports.gotoDefinition = goToDefinition;
+    exports.gotoDefinition = goTo Definition
 });
