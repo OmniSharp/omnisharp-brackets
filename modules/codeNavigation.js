@@ -31,5 +31,5 @@ define(function (require, exports, module) {
         });
     }
     
-    exports.gotoDefinition = goTo Definition
+    exports.gotoDefinition = goToDefinition;
 });
