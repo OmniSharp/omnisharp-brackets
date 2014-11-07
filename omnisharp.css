@@ -34,3 +34,11 @@
 #omnisharp-notification.error {
     background-position: 0 -0px;
 }
+
+span.omnisharp-error {
+    background-image:url("error.gif");
+    background-repeat:repeat-x;
+    background-position:left bottom;
+    padding-bottom:2px;
+    vertical-align:text-top;
+}

@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     'use strict';
     
     var EditorManager = brackets.getModule("editor/EditorManager"),
+        CodeMirror = brackets.getModule('thirdparty/CodeMirror2/lib/codemirror'),
         Pos = CodeMirror.Pos;
     
     var ourMap = {
