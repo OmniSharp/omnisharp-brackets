@@ -77,7 +77,7 @@ maxerr: 50, node: true */
 
             _omnisharpProcess.on('close', function (data) {
                 console.info(data);
-                _domainManager.emitEvent(_domainName, 'omnisharpExited', data);
+                _domainManager.emitEvent(_domainName, 'omnisharpQuit', data);
             });
 
             callback(null, _port);
@@ -174,7 +174,7 @@ maxerr: 50, node: true */
 
         _domainManager.registerEvent(_domainName, 'omnisharpStarting', []);
         _domainManager.registerEvent(_domainName, 'omnisharpReady', []);
-        _domainManager.registerEvent(_domainName, 'omnisharpExited', []);
+        _domainManager.registerEvent(_domainName, 'omnisharpQuit', []);
     }
 
     exports.init = init;

@@ -4,7 +4,8 @@
 define(function (require, exports, module) {
     'use strict';
     
-    var CodeHintManager = brackets.getModule('editor/CodeHintManager'),
+    var AppInit = brackets.getModule('utils/AppInit'),
+        CodeHintManager = brackets.getModule('editor/CodeHintManager'),
         EditorManager = brackets.getModule("editor/EditorManager"),
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp'),
@@ -23,63 +24,6 @@ define(function (require, exports, module) {
         return codeMirror.getTokenAt(cursor);
     }
     
-//    function getArguments(snippet) {
-//        if (snippet === null) {
-//            return [];
-//        }
-//        var argumentSnippets = snippet.match(argumentsRegEx);
-//        if (argumentSnippets === null) {
-//            return [];
-//        }
-//        
-//        return argumentSnippets.map(function (argumentSnippet) {
-//            var argumentSnippetSplit = argumentSnippet.split(':');
-//            return {
-//                number: argumentSnippetSplit[0].substring(2),
-//                displayText: argumentSnippetSplit[1].substring(0, argumentSnippetSplit[1].length - 1),
-//                snippet: argumentSnippet
-//            };
-//        });
-//    }
-    
-//    function getPreviousToken(cursor) {
-//        var editor = EditorManager.getActiveEditor(),
-//            token = getToken(cursor),
-//            prev = token,
-//            doc = editor.document;
-//
-//        do {
-//            if (prev.start < cursor.ch) {
-//                cursor.ch = prev.start;
-//            } else if (prev.start > 0) {
-//                cursor.ch = prev.start - 1;
-//            } else if (cursor.line > 0) {
-//                cursor.ch = doc.getLine(cursor.line - 1).length;
-//                cursor.line--;
-//            } else {
-//                break;
-//            }
-//            prev = getToken(cursor);
-//        } while (!tokenRegEx.test(prev.string));
-//        
-//        return prev;
-//    }
-    
-//    function findPreviousDot() {
-//        var cursor = getCursor(),
-//            token = getToken(cursor);
-//        
-//        if (token && token.string === ".") {
-//            return cursor;
-//        } else {
-//            token = getPreviousToken(cursor);
-//            if (token && token.string === ".") {
-//                return cursor;
-//            }
-//        }
-//        return undefined;
-//    }
-    
     function getCompletion(completion) {
         var completionText = completion.Snippet || completion.CompletionText;
         return '<span data-completiontext="' +
@@ -91,25 +35,6 @@ define(function (require, exports, module) {
             ' : <strong>' +
             completion.ReturnType +
             '</strong></span>';
-        
-//        var display = completion.CompletionText;
-//        display += '\t';
-//        display += completion.DisplayText;
-//        
-//        var params = /\(|\)/.split(completion.DisplayText);
-//        var paramsSplit = [];
-//        
-//        if (params.length === 3) {
-//            if (params[1] !== '') {
-//                paramsSplit = params[1].split(',');
-//            }
-//        }
-//        
-//        var completionText = completion.CompletionText;
-//        
-//        if (/^T\W/.match(completionText)) {
-//        }
-                
     }
     
     function prepSnippet(completionText) {
@@ -187,10 +112,19 @@ define(function (require, exports, module) {
             return false;
         }
     };
+
+    function onOmnisharpReady() {
+        CodeHintManager.registerHintProvider(intellisense, ['csharp'], 0);
+    }
+
+    function onOmnisharpEnd() {
+        CodeHintManager._removeHintProvider(intellisense, ['csharp']);
+    }
     
-    return {
-        init: function () {
-            CodeHintManager.registerHintProvider(intellisense, ['csharp'], 0);
-        }
-    };
+    AppInit.appReady(function () {
+        $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
+        $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
+        $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
+        
+    });
 });

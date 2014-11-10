@@ -16,6 +16,10 @@ define(function (require, exports, module) {
         stopOmnisharp: packageString + 'stopOmnisharp',
         renameOk: packageString + 'renameOk',
         renameCancel: packageString + 'renameCancel',
-        renameInput: packageString + 'renameInput'
+        renameInput: packageString + 'renameInput',
+        rename: packageString + 'rename',
+        gotoDefinition: packageString + 'gotoDefinition',
+        formatDocument: packageString + 'formatDocument',
+        fixUsings: packageString + 'fixUsings'
     };
 });
