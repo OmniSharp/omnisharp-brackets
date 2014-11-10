@@ -27,8 +27,8 @@ define(function (require, exports, module) {
     }
     
     function stop() {
-        if (isRunning) {
-            console.info('Omnisharp is not currently running');
+        if (!isRunning) {
+            return;
         }
 
         Omnisharp.exec('stopOmnisharp');
@@ -95,4 +95,6 @@ define(function (require, exports, module) {
     });
 
     exports.makeRequest = makeRequest;
+    exports.start = start;
+    exports.stop = stop;
 });
