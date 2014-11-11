@@ -92,6 +92,8 @@ maxerr: 50, node: true */
     }
 
     function callService(service, data, callback) {
+        data.filename = path.resolve(data.filename);
+        
         var url = 'http://localhost:' + _port + '/' + service;
         console.info('making omnisharp request: ' + url);
         console.info(data);
