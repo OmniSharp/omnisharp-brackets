@@ -36,7 +36,13 @@ define(function (require, exports, module) {
         //     completion.ReturnType +
         //     '</strong></span>';
 
-        return '<span data-completiontext="' + completion.CompletionText + '" >' + completion.DisplayText + '</span>';
+        var completionHtml = '<span data-completiontext="' + completion.CompletionText + '" >' + completion.DisplayText;
+
+        if (completion.ReturnType !== null) {
+            completionHtml += ' : <strong>' + completion.ReturnType + '</strong>';
+        }
+
+        return completionHtml + '</span>';
     }
     
     function prepSnippet(completionText) {
