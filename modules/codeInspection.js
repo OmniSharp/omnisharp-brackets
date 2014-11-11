@@ -11,7 +11,9 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp');
 
     var editor,
-        codeMirror;
+        codeMirror,
+        isRegistered = false,
+        isRunning = false;
 
     function getToken(cursor) {
         return codeMirror.getTokenAt(cursor);
@@ -53,12 +55,19 @@ define(function (require, exports, module) {
         codeMirror = editor._codeMirror;
         clearMarks();
         
-        var deferred = $.Deferred(),
-            data = Helpers.buildRequest();
+        var deferred = $.Deferred();
+
+        if (!isRunning) {
+            deferred.resolve({ errors: [] });
+            return deferred;
+        }
+
+        var data = Helpers.buildRequest();
 
         Omnisharp.makeRequest('codecheck', data, function (err, data) {
             if (err !== null) {
                 deferred.reject();
+                return deferred;
             }
 
             var result = {
@@ -84,13 +93,25 @@ define(function (require, exports, module) {
     }
     
     function onOmnisharpReady() {
-        CodeInspection.register('csharp', {
-            name: 'omnisharp',
-            scanFileAsync: validateFile
-        });
+        isRunning = true;
+
+        if (!isRegistered) {
+            CodeInspection.register('csharp', {
+                name: 'Omnisharp',
+                scanFileAsync: validateFile
+            });
+
+            isRegistered = true;
+        }
+    }
+
+    function onOmnisharpEnd() {
+        isRunning = false;
     }
 
     AppInit.appReady(function () {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
+        $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
+        $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
     });
 });
