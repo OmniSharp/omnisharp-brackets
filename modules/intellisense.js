@@ -25,16 +25,18 @@ define(function (require, exports, module) {
     }
     
     function getCompletion(completion) {
-        var completionText = completion.Snippet || completion.CompletionText;
-        return '<span data-completiontext="' +
-            completionText +
-            '" data-issnippet="' +
-            (completion.Snippet !== false).toString() +
-            '" >' +
-            completion.DisplayText +
-            ' : <strong>' +
-            completion.ReturnType +
-            '</strong></span>';
+        // var completionText = completion.Snippet || completion.CompletionText;
+        // return '<span data-completiontext="' +
+        //     completionText +
+        //     '" data-issnippet="' +
+        //     (completion.Snippet !== false).toString() +
+        //     '" >' +
+        //     completion.DisplayText +
+        //     ' : <strong>' +
+        //     completion.ReturnType +
+        //     '</strong></span>';
+
+        return '<span data-completiontext="' + completion.CompletionText + '" >' + completion.DisplayText + '</span>';
     }
     
     function prepSnippet(completionText) {
@@ -102,12 +104,12 @@ define(function (require, exports, module) {
                 ch: cursor.ch + adjustment
             };
 
-            if (data.issnippet) {
-                var snippet = prepSnippet(completionText);
-                Snippets.install({ from: start, to: end }, snippet);
-            } else {
+            // if (data.issnippet) {
+            //     var snippet = prepSnippet(completionText);
+            //     Snippets.install({ from: start, to: end }, snippet);
+            // } else {
                 editor._codeMirror.replaceRange(completionText, start, end);
-            }
+            // }
     
             return false;
         }

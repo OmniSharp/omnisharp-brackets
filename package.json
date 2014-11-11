@@ -8,6 +8,5 @@
     "license": "MIT",
     "engines": {
         "brackets": ">=1.0"
-    },
-    "i18n": [ "en" ]
+    }
 }
