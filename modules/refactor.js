@@ -58,6 +58,14 @@ define(function (require, exports, module) {
         $input.val(oldName);
         $input.focus();
         $input.select();
+        $input.keyup(function (event) {
+            if (event.keyCode === 13) {
+                Dialogs.cancelModalDialogIfOpen(
+                    DefaultDialogs.DIALOG_ID_SAVE_CLOSE,
+                    Strings.renameOk
+                );
+            }
+        });
     }
 
     exports.rename = rename;
