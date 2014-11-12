@@ -22,14 +22,14 @@ define(function (require, exports, module) {
         Strings = require('strings');
 
     var $input;
-    
+
     function onClose(buttonId) {
         var renameTo = $input.val();
 
         if (buttonId === Strings.renameOk && renameTo !== undefined) {
             var data = Helpers.buildRequest();
             data.renameto = renameTo;
-            
+
             Omnisharp.makeRequest('rename', data, function (err, data) {
                 data.Changes.forEach(function (change) {
                     var unixPath = FileUtils.convertWindowsPathToUnixPath(change.FileName);
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
             });
         }
     }
-    
+
     function rename() {
         Dialogs.showModalDialog(
             DefaultDialogs.DIALOG_ID_SAVE_CLOSE,
@@ -54,7 +54,11 @@ define(function (require, exports, module) {
         ).done(onClose);
 
         $input = $('#renameInput');
+        var oldName = EditorManager.getCurrentFullEditor().getSelectedText();
+        $input.val(oldName);
+        $input.focus();
+        $input.select();
     }
-    
+
     exports.rename = rename;
 });
