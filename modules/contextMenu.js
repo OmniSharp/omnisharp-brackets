@@ -15,20 +15,24 @@ define(function (require, exports, module) {
     function enable() {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(true);
         CommandManager.get(OmniCommands.RENAME).setEnabled(true);
+        CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(true);
     }
 
     function disable() {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(false);
         CommandManager.get(OmniCommands.RENAME).setEnabled(false);
+        CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(false);
     }
     
     function beforeContextMenuOpen() {
         if (Helpers.isCSharp()) {
             contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION);
             contextMenu.addMenuItem(OmniCommands.RENAME);
+            contextMenu.addMenuItem(OmniCommands.FIX_CODE_ISSUE);
         } else {
             contextMenu.removeMenuItem(OmniCommands.GO_TO_DEFINITION);
             contextMenu.removeMenuItem(OmniCommands.RENAME);
+            contextMenu.removeMenuItem(OmniCommands.FIX_CODE_ISSUE);
         }
     }
 

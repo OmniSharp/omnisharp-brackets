@@ -12,6 +12,10 @@ define(function (require, exports, module) {
         renameCommand = require('commands/rename'),
         goToDefinitionCommand = require('commands/goToDefinition');
 
+    function fixCodeIssue() {
+        Helpers.makeRequestAndRefreshDocument('fixcodeissue');
+    }
+
     function formatDocument() {
         Helpers.makeRequestAndRefreshDocument('codeformat');
     }
@@ -26,4 +30,5 @@ define(function (require, exports, module) {
     CommandManager.register(OmniStrings.CMD_RENAME, OmniCommands.RENAME, renameCommand.exec);
     CommandManager.register(OmniStrings.CMD_START_OMNISHARP, OmniCommands.START_OMNISHARP, Omnisharp.start);
     CommandManager.register(OmniStrings.CMD_STOP_OMNISHARP, OmniCommands.STOP_OMNISHARP, Omnisharp.stop);
+    CommandManager.register(OmniStrings.CMD_FIX_CODE_ISSUE, OmniCommands.FIX_CODE_ISSUE, fixCodeIssue);
 });

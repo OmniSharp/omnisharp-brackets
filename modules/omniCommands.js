@@ -12,4 +12,5 @@ define(function (require, exports, module) {
     exports.RENAME = packageString + 'rename';
     exports.START_OMNISHARP = packageString + 'startOmnisharp';
     exports.STOP_OMNISHARP = packageString + 'stopOmnisharp';
+    exports.FIX_CODE_ISSUE = packageString + 'fixCodeIssue';
 });

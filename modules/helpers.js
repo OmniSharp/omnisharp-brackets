@@ -43,7 +43,7 @@ define(function (require, exports, module) {
                 console.error(err);
             }
 
-            document.setText(res.Buffer);
+            document.setText(res.Buffer || res.Text);
         });
     }
     
