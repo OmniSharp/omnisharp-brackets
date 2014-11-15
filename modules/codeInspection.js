@@ -4,8 +4,7 @@
 define(function (require, exports, module) {
     'use strict';
 
-    var AppInit = brackets.getModule('utils/AppInit'),
-        CodeInspection = brackets.getModule("language/CodeInspection"),
+    var CodeInspection = brackets.getModule("language/CodeInspection"),
         Helpers = require('modules/helpers'),
         EditorManager = brackets.getModule("editor/EditorManager"),
         Omnisharp = require('modules/omnisharp');
@@ -22,7 +21,7 @@ define(function (require, exports, module) {
     function clearMarks() {
         codeMirror.doc.getAllMarks().forEach(function (mark) {
             mark.clear();
-        })
+        });
     }
 
     function getLogLevel(logLevel) {
@@ -30,7 +29,7 @@ define(function (require, exports, module) {
     }
     
     function setMark(problem) {
-        var token = getToken({ line: problem.Line -1, ch: problem.Column - 1 });
+        var token = getToken({ line: problem.Line - 1, ch: problem.Column - 1 });
         codeMirror.markText(
             { line: problem.Line - 1, ch: token.start },
             { line: problem.Line - 1, ch: token.end },
@@ -108,10 +107,12 @@ define(function (require, exports, module) {
     function onOmnisharpEnd() {
         isRunning = false;
     }
-
-    AppInit.appReady(function () {
+    
+    function init() {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
         $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
-    });
+    }
+
+    exports.init = init;
 });

@@ -5,7 +5,8 @@ define(function (require, exports, module) {
     'use strict';
 
     var EditorManager = brackets.getModule("editor/EditorManager"),
-        DocumentManager = brackets.getModule('document/DocumentManager');
+        DocumentManager = brackets.getModule('document/DocumentManager'),
+        Omnisharp = require('modules/omnisharp');
     
     function isCSharp() {
         var document = DocumentManager.getCurrentDocument();
@@ -33,6 +34,20 @@ define(function (require, exports, module) {
         };
     }
     
+    function makeRequestAndRefreshDocument(service) {
+        var document = DocumentManager.getCurrentDocument();
+        var req = buildRequest();
+
+        Omnisharp.makeRequest(service, req, function (err, res) {
+            if (err !== null) {
+                console.error(err);
+            }
+
+            document.setText(res.Buffer);
+        });
+    }
+    
     exports.isCSharp = isCSharp;
     exports.buildRequest = buildRequest;
+    exports.makeRequestAndRefreshDocument = makeRequestAndRefreshDocument;
 });

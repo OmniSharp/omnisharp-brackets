@@ -114,7 +114,7 @@ define(function (require, exports, module) {
             //     var snippet = prepSnippet(completionText);
             //     Snippets.install({ from: start, to: end }, snippet);
             // } else {
-                editor._codeMirror.replaceRange(completionText, start, end);
+            editor._codeMirror.replaceRange(completionText, start, end);
             // }
     
             return false;
@@ -129,10 +129,11 @@ define(function (require, exports, module) {
         CodeHintManager._removeHintProvider(intellisense, ['csharp']);
     }
     
-    AppInit.appReady(function () {
+    function init() {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
         $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
-        
-    });
+    }
+    
+    exports.init = init;
 });

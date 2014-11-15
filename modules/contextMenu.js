@@ -4,46 +4,43 @@
 define(function (require, exports, module) {
     'use strict';
 
-    var AppInit = brackets.getModule('utils/AppInit'),
-        Omnisharp = require('modules/omnisharp'),
+    var Omnisharp = require('modules/omnisharp'),
         Menus = brackets.getModule('command/Menus'),
         CommandManager = brackets.getModule('command/CommandManager'),
-        CodeNavigation = require('modules/codeNavigation'),
-        Refactor = require('modules/refactor'),
         Helpers = require('modules/helpers'),
-        Strings = require('strings');
+        OmniCommands = require('modules/omniCommands');
+
+    var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
     
-    function onOmnisharpReady() {
-        CommandManager.get(Strings.gotoDefinition).setEnabled(true);
-        CommandManager.get(Strings.rename).setEnabled(true);
+    function enable() {
+        CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(true);
+        CommandManager.get(OmniCommands.RENAME).setEnabled(true);
     }
 
-    function onOmnisharpEnd() {
-        CommandManager.get(Strings.gotoDefinition).setEnabled(false);
-        CommandManager.get(Strings.rename).setEnabled(false);
+    function disable() {
+        CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(false);
+        CommandManager.get(OmniCommands.RENAME).setEnabled(false);
+    }
+    
+    function beforeContextMenuOpen() {
+        if (Helpers.isCSharp()) {
+            contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION);
+            contextMenu.addMenuItem(OmniCommands.RENAME);
+        } else {
+            contextMenu.removeMenuItem(OmniCommands.GO_TO_DEFINITION);
+            contextMenu.removeMenuItem(OmniCommands.RENAME);
+        }
     }
 
-    AppInit.appReady(function () {
-        CommandManager.register('Goto Definition', Strings.gotoDefinition, CodeNavigation.gotoDefinition);
-        CommandManager.register('Rename', Strings.rename, Refactor.rename);
+    function init() {
+        disable();
 
-        CommandManager.get(Strings.gotoDefinition).setEnabled(false);
-        CommandManager.get(Strings.rename).setEnabled(false);
+        $(contextMenu).on("beforeContextMenuOpen", beforeContextMenuOpen);
+        
+        $(Omnisharp).on('omnisharpReady', enable);
+        $(Omnisharp).on('omnisharpQuit', disable);
+        $(Omnisharp).on('omnisharpError', disable);
+    }
 
-        var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
-
-        $(contextMenu).on("beforeContextMenuOpen", function () {
-            if (Helpers.isCSharp()) {
-                contextMenu.addMenuItem(Strings.gotoDefinition);
-                contextMenu.addMenuItem(Strings.rename);
-            } else {
-                contextMenu.removeMenuItem(Strings.gotoDefinition);
-                contextMenu.removeMenuItem(Strings.rename);
-            }
-        });
-
-        $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
-        $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
-        $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
-    });
+    exports.init = init;
 });

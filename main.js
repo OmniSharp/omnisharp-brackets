@@ -7,57 +7,54 @@ define(function (require, exports, module) {
     var CommandManager = brackets.getModule('command/CommandManager'),
         ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
         Menus = brackets.getModule('command/Menus'),
-        AppInit = brackets.getModule('utils/AppInit'),
-        ProjectManager = brackets.getModule('project/ProjectManager'),
-        Strings = require('strings'),
         Omnisharp = require('modules/omnisharp'),
+        AppInit = brackets.getModule('utils/AppInit'),
         CodeInspection = require('modules/codeInspection'),
         ContextMenu = require('modules/contextMenu'),
-        CodeFormat = require('modules/codeFormat'),
         Intellisense = require('modules/intellisense'),
         Toolbar = require('modules/toolbar'),
-        Snippets = require('modules/snippets');
+        OmniCommands = require('modules/omniCommands'),
+        OmniHandlers = require('modules/omniHandlers'),
+        OmniStrings = require('modules/omniStrings');
+
+    function enable() {
+        CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
+        CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(true);
+        CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
+        CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(true);
+    }
+
+    function disable() {
+        CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(true);
+        CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
+        CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
+        CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(false);
+    }
 
     function createMenu() {
-        var menu = Menus.addMenu('Omnisharp', Strings.omnisharpMenu);
+        var menu = Menus.addMenu('Omnisharp', 'omnisharp.omnisharp-brackets.omnisharpMenu');
         
-        menu.addMenuItem(Strings.startOmnisharp);
-        menu.addMenuItem(Strings.stopOmnisharp);
+        menu.addMenuItem(OmniCommands.START_OMNISHARP);
+        menu.addMenuItem(OmniCommands.STOP_OMNISHARP);
         menu.addMenuDivider();
-        menu.addMenuItem(Strings.fixUsings);
-        menu.addMenuItem(Strings.formatDocument);
+        menu.addMenuItem(OmniCommands.FIX_USINGS);
+        menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT);
 
-        CommandManager.get(Strings.startOmnisharp).setEnabled(true);
-        CommandManager.get(Strings.stopOmnisharp).setEnabled(false);
-        CommandManager.get(Strings.fixUsings).setEnabled(false);
-        CommandManager.get(Strings.formatDocument).setEnabled(false);
-    }
-
-    function onOmnisharpReady() {
-        CommandManager.get(Strings.startOmnisharp).setEnabled(false);
-        CommandManager.get(Strings.stopOmnisharp).setEnabled(true);
-        CommandManager.get(Strings.fixUsings).setEnabled(true);
-        CommandManager.get(Strings.formatDocument).setEnabled(true);
-    }
-
-    function onOmnisharpEnd() {
-        CommandManager.get(Strings.startOmnisharp).setEnabled(true);
-        CommandManager.get(Strings.stopOmnisharp).setEnabled(false);
-        CommandManager.get(Strings.fixUsings).setEnabled(false);
-        CommandManager.get(Strings.formatDocument).setEnabled(false);
+        disable();
     }
     
     AppInit.appReady(function () {
-        ExtensionUtils.loadStyleSheet(module, "omnisharp.css");
-
-        CommandManager.register('Format Document', Strings.formatDocument, CodeFormat.formatDocument);
-        CommandManager.register('Fix Usings', Strings.fixUsings, CodeFormat.fixUsings);
-        CommandManager.register('Start Omnisharp', Strings.startOmnisharp, Omnisharp.start);
-        CommandManager.register('Stop Omnisharp', Strings.stopOmnisharp, Omnisharp.stop);
+        ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
 
         createMenu();
-        $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
-        $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
-        $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
+        
+        $(Omnisharp).on('omnisharpReady', enable);
+        $(Omnisharp).on('omnisharpQuit', disable);
+        $(Omnisharp).on('omnisharpError', disable);
+        
+        ContextMenu.init();
+        CodeInspection.init();
+        Intellisense.init();
+        Toolbar.init();
     });
 });

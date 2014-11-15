@@ -4,32 +4,32 @@
 define(function (require, exports, module) {
     'use strict';
 
-    var EditorManager = brackets.getModule('editor/EditorManager'),
-        CommandManager = brackets.getModule('command/CommandManager'),
+    var CommandManager = brackets.getModule('command/CommandManager'),
         Commands = brackets.getModule('command/Commands'),
-        FileUtils = brackets.getModule('file/FileUtils'),
         Omnisharp = require('modules/omnisharp'),
+        EditorManager = brackets.getModule('editor/EditorManager'),
+        FileUtils = brackets.getModule('file/FileUtils'),
         Helpers = require('modules/helpers');
 
-    function goToDefinition() {
-        var data = Helpers.buildRequest();
+    function exec() {
+        var req = Helpers.buildRequest();
 
-        Omnisharp.makeRequest('gotoDefinition', data, function (err, data) {
+        Omnisharp.makeRequest('gotoDefinition', req, function (err, res) {
             if (err !== null) {
                 console.error(err);
             }
 
-            if (data.FileName === null) {
+            if (res.FileName === null) {
                 return;
             }
 
-            var unixPath = FileUtils.convertWindowsPathToUnixPath(data.FileName);
+            var unixPath = FileUtils.convertWindowsPathToUnixPath(res.FileName);
             CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' }).done(function () {
                 var editor = EditorManager.getActiveEditor();
-                editor.setCursorPos(data.Line - 1, data.Column - 1, true);
+                editor.setCursorPos(res.Line - 1, res.Column - 1, true);
             });
         });
     }
-    
-    exports.gotoDefinition = goToDefinition;
+
+    exports.exec = exec;
 });

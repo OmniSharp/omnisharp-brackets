@@ -1,5 +1,5 @@
 #omnisharp-notification {
-    background-image: url(omnisharp.png); 
+    background-image: url('images/omnisharp.png'); 
     background-position: 0 -48px;
     margin-left: 1px;
 }
@@ -11,7 +11,7 @@
 #omnisharp-notification.starting .loadingSpan {
     position: absolute;
     display: inline;
-    background-image: url(omnisharp.png); 
+    background-image: url('images/omnisharp.png'); 
     background-position: 0 -24px;
     height: 24px;
     width: 24px;
@@ -36,9 +36,9 @@
 }
 
 span.omnisharp-error {
-    background-image:url("error.gif");
-    background-repeat:repeat-x;
-    background-position:left bottom;
-    padding-bottom:2px;
-    vertical-align:text-top;
+    background-image: url('images/error.gif');
+    background-repeat: repeat-x;
+    background-position: left bottom;
+    padding-bottom: 2px;
+    vertical-align: text-top;
 }
