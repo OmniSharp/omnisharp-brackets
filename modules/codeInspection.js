@@ -44,7 +44,6 @@ define(function (require, exports, module) {
         if(problem.LogLevel === 'Warning'){
             setMark(problem, 'warning');
         }
-        console.log(problem.LogLevel);
 
         return {
             pos: { line: problem.Line - 1, ch: problem.Column },
