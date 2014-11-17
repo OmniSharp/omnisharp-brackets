@@ -17,7 +17,7 @@ define(function (require, exports, module) {
     function getToken(cursor) {
         return codeMirror.getTokenAt(cursor);
     }
-    
+
     function clearMarks() {
         codeMirror.doc.getAllMarks().forEach(function (mark) {
             mark.clear();
@@ -27,33 +27,37 @@ define(function (require, exports, module) {
     function getLogLevel(logLevel) {
         return logLevel === 'Error' ? CodeInspection.Type.ERROR : CodeInspection.Type.WARNING;
     }
-    
-    function setMark(problem) {
+
+    function setMark(problem,type) {
         var token = getToken({ line: problem.Line - 1, ch: problem.Column - 1 });
         codeMirror.markText(
             { line: problem.Line - 1, ch: token.start },
             { line: problem.Line - 1, ch: token.end },
-            { className: 'omnisharp-error' }
+            { className: 'omnisharp-'+type }
         );
     }
 
     function processProblem(problem) {
         if (problem.LogLevel === 'Error') {
-            setMark(problem);
+            setMark(problem,'error');
         }
-                    
+        if(problem.LogLevel === 'Warning'){
+            setMark(problem, 'warning');
+        }
+        console.log(problem.LogLevel);
+
         return {
             pos: { line: problem.Line - 1, ch: problem.Column },
             message: problem.Text,
             type: getLogLevel(problem.LogLevel)
         };
     }
-    
+
     function validateFile(text, fullPath) {
         editor = EditorManager.getActiveEditor();
         codeMirror = editor._codeMirror;
         clearMarks();
-        
+
         var deferred = $.Deferred();
 
         if (!isRunning) {
@@ -90,7 +94,7 @@ define(function (require, exports, module) {
 
         return deferred.promise();
     }
-    
+
     function onOmnisharpReady() {
         isRunning = true;
 
@@ -107,7 +111,7 @@ define(function (require, exports, module) {
     function onOmnisharpEnd() {
         isRunning = false;
     }
-    
+
     function init() {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
