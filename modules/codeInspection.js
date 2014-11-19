@@ -38,11 +38,8 @@ define(function (require, exports, module) {
     }
 
     function processProblem(problem) {
-        if (problem.LogLevel === 'Error') {
-            setMark(problem,'error');
-        }
-        if(problem.LogLevel === 'Warning'){
-            setMark(problem, 'warning');
+        if (problem.LogLevel === 'Error' || problem.LogLevel === 'Warning') {
+            setMark(problem,problem.LogLevel.toLowerCase());
         }
 
         return {
