@@ -3,7 +3,7 @@
     "title": "Omnisharp",
     "description": "Get some help when developing your C# apps",
     "homepage": "https://github.com/OmniSharp/omnisharp-brackets",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": "Mathew McLoughlin mathew.mcloughlin@gmail.com (http://mat-mcloughlin.net)",
     "license": "MIT",
     "engines": {
