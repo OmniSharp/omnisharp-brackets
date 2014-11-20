@@ -22,6 +22,7 @@ define(function (require, exports, module) {
         CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(true);
         CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(true);
+        CommandManager.get(OmniCommands.CODE_ACTION).setEnabled(true);
     }
 
     function disable() {
@@ -29,6 +30,7 @@ define(function (require, exports, module) {
         CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(false);
         CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(false);
+        CommandManager.get(OmniCommands.CODE_ACTION).setEnabled(false);
     }
 
     function createMenu() {
