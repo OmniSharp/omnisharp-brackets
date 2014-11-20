@@ -28,18 +28,16 @@ define(function (require, exports, module) {
         return logLevel === 'Error' ? CodeInspection.Type.ERROR : CodeInspection.Type.WARNING;
     }
 
-    function setMark(problem,type) {
+    function setMark(problem, type) {
         var token = getToken({ line: problem.Line - 1, ch: problem.Column - 1 });
-        codeMirror.markText(
-            { line: problem.Line - 1, ch: token.start },
-            { line: problem.Line - 1, ch: token.end },
-            { className: 'omnisharp-'+type }
-        );
+        var start = { line: problem.Line - 1, ch: problem.Column - 1 };
+        var end = { line: problem.EndLine === -1 ? problem.Line - 1 : problem.EndLine - 1, ch: problem.EndColumn === -1 ? problem.Column : problem.EndColumn - 1 };
+        codeMirror.markText(start, end, { className: 'omnisharp-' + type });
     }
 
     function processProblem(problem) {
         if (problem.LogLevel === 'Error' || problem.LogLevel === 'Warning') {
-            setMark(problem,problem.LogLevel.toLowerCase());
+            setMark(problem, problem.LogLevel.toLowerCase());
         }
 
         return {
