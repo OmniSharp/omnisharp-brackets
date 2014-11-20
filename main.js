@@ -19,14 +19,14 @@ define(function (require, exports, module) {
 
     function enable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
-        CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(true);
+        CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(true);
         CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(true);
     }
 
     function disable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(true);
-        CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
+        CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(false);
         CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(false);
     }
