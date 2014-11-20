@@ -33,25 +33,26 @@ define(function (require, exports, module) {
 
     function createMenu() {
         var menu = Menus.addMenu('Omnisharp', 'omnisharp.omnisharp-brackets.omnisharpMenu');
-        
+
         menu.addMenuItem(OmniCommands.START_OMNISHARP);
         menu.addMenuItem(OmniCommands.STOP_OMNISHARP);
         menu.addMenuDivider();
         menu.addMenuItem(OmniCommands.FIX_USINGS);
         menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT);
+        menu.addMenuItem(OmniCommands.CODE_ACTION);
 
         disable();
     }
-    
+
     AppInit.appReady(function () {
         ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
 
         createMenu();
-        
+
         $(Omnisharp).on('omnisharpReady', enable);
         $(Omnisharp).on('omnisharpQuit', disable);
         $(Omnisharp).on('omnisharpError', disable);
-        
+
         ContextMenu.init();
         CodeInspection.init();
         Intellisense.init();

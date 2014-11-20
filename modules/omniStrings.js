@@ -11,4 +11,5 @@ define(function (require, exports, module) {
     exports.CMD_START_OMNISHARP = 'Start Omnisharp';
     exports.CMD_STOP_OMNISHARP = 'Stop Omnisharp';
     exports.CMD_FIX_CODE_ISSUE = 'Fix Code Issue';
+    exports.CMD_CODE_ACTION = 'Code Action...';
 });
