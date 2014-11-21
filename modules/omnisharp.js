@@ -10,11 +10,11 @@ define(function (require, exports, module) {
         ProjectManager = brackets.getModule('project/ProjectManager'),
         EditorManager = brackets.getModule('editor/EditorManager'),
         Dialogs = brackets.getModule("widgets/Dialogs"),
-        DefaultDialogs  = brackets.getModule("widgets/DefaultDialogs"),
+        DefaultDialogs = brackets.getModule("widgets/DefaultDialogs"),
         Omnisharp = new NodeDomain('omnisharp-brackets', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
-    
+
     var isRunning = false;
-    
+
     function start() {
         if (isRunning) {
             return;
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
             console.error('fail: ' + err);
         });
     }
-    
+
     function stop() {
         if (!isRunning) {
             return;
@@ -33,7 +33,7 @@ define(function (require, exports, module) {
 
         Omnisharp.exec('stopOmnisharp');
     }
-    
+
     function makeRequest(service, data, callback) {
         Omnisharp.exec('callService', service, data)
             .done(function (body) {
@@ -43,33 +43,33 @@ define(function (require, exports, module) {
                 callback(err, null);
             });
     }
-    
+
     function onOmnisharpError(data) {
         console.error(data);
         isRunning = false;
         $(exports).triggerHandler('omnisharpError');
     }
-    
+
     function onOmnisharpQuit() {
         console.info('Omnisharp has quit');
         isRunning = false;
         $(exports).triggerHandler('omnisharpQuit');
     }
-    
+
     function onOmnisharpReady() {
         isRunning = true;
         $(exports).triggerHandler('omnisharpReady');
     }
-    
+
     function onOmnisharpStarting() {
         $(exports).triggerHandler('omnisharpStarting');
     }
-    
+
     function onActiveEditorChange(event, newActive, oldActive) {
         if (newActive === null) {
             return;
         }
-        
+
         var document = newActive.document;
         if (document === null) {
             return;
@@ -80,9 +80,13 @@ define(function (require, exports, module) {
             start();
         }
     }
-    
+
     function beforeAppClose() {
         Omnisharp.exec('stopOmnisharp');
+    }
+
+    function isOmnisharpRunning() {
+        return isRunning;
     }
     
     AppInit.appReady(function () {
@@ -94,6 +98,7 @@ define(function (require, exports, module) {
         $(ProjectManager).on("beforeAppClose", beforeAppClose);
     });
 
+    exports.isOmnisharpRunning = isOmnisharpRunning;
     exports.makeRequest = makeRequest;
     exports.start = start;
     exports.stop = stop;

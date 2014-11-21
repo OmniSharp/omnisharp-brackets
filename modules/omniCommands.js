@@ -13,5 +13,4 @@ define(function (require, exports, module) {
     exports.START_OMNISHARP = packageString + 'startOmnisharp';
     exports.STOP_OMNISHARP = packageString + 'stopOmnisharp';
     exports.FIX_CODE_ISSUE = packageString + 'fixCodeIssue';
-    exports.CODE_ACTION = packageString + 'codeAction';
 });

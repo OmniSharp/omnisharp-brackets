@@ -12,6 +12,7 @@ define(function (require, exports, module) {
         CodeInspection = require('modules/codeInspection'),
         ContextMenu = require('modules/contextMenu'),
         Intellisense = require('modules/intellisense'),
+        CodeActions = require('modules/codeAction'),
         Toolbar = require('modules/toolbar'),
         OmniCommands = require('modules/omniCommands'),
         OmniHandlers = require('modules/omniHandlers'),
@@ -22,7 +23,6 @@ define(function (require, exports, module) {
         CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(true);
         CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(true);
-        CommandManager.get(OmniCommands.CODE_ACTION).setEnabled(true);
     }
 
     function disable() {
@@ -30,7 +30,6 @@ define(function (require, exports, module) {
         CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(false);
         CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(false);
-        CommandManager.get(OmniCommands.CODE_ACTION).setEnabled(false);
     }
 
     function createMenu() {
@@ -41,7 +40,6 @@ define(function (require, exports, module) {
         menu.addMenuDivider();
         menu.addMenuItem(OmniCommands.FIX_USINGS);
         menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT);
-        menu.addMenuItem(OmniCommands.CODE_ACTION);
 
         disable();
     }
@@ -59,5 +57,6 @@ define(function (require, exports, module) {
         CodeInspection.init();
         Intellisense.init();
         Toolbar.init();
+        CodeActions.init();
     });
 });

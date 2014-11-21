@@ -10,7 +10,6 @@ define(function (require, exports, module) {
         OmniCommands = require('modules/omniCommands'),
         OmniStrings = require('modules/omniStrings'),
         renameCommand = require('commands/rename'),
-        codeAction = require('commands/codeAction'),
         goToDefinitionCommand = require('commands/goToDefinition');
 
     function fixCodeIssue() {
@@ -33,5 +32,4 @@ define(function (require, exports, module) {
     CommandManager.register(OmniStrings.CMD_START_OMNISHARP, OmniCommands.START_OMNISHARP, Omnisharp.start);
     CommandManager.register(OmniStrings.CMD_STOP_OMNISHARP, OmniCommands.STOP_OMNISHARP, Omnisharp.stop);
     CommandManager.register(OmniStrings.CMD_FIX_CODE_ISSUE, OmniCommands.FIX_CODE_ISSUE, fixCodeIssue);
-    CommandManager.register(OmniStrings.CMD_CODE_ACTION, OmniCommands.CODE_ACTION, codeAction.exec);
 });
