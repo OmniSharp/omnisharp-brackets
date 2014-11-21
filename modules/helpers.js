@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var EditorManager = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule('document/DocumentManager'),
         Omnisharp = require('modules/omnisharp');
-    
+
     function isCSharp() {
         var document = DocumentManager.getCurrentDocument();
         if (document === null) {
@@ -17,7 +17,7 @@ define(function (require, exports, module) {
         var language = document.getLanguage();
         return language.getId() === 'csharp';
     }
-    
+
     function buildRequest() {
         var document = DocumentManager.getCurrentDocument();
         var filename = document.file._path;
@@ -33,7 +33,7 @@ define(function (require, exports, module) {
             filename: filename
         };
     }
-    
+
     function makeRequestAndRefreshDocument(service) {
         var document = DocumentManager.getCurrentDocument();
         var req = buildRequest();
@@ -46,7 +46,7 @@ define(function (require, exports, module) {
             document.setText(res.Buffer || res.Text);
         });
     }
-    
+
     exports.isCSharp = isCSharp;
     exports.buildRequest = buildRequest;
     exports.makeRequestAndRefreshDocument = makeRequestAndRefreshDocument;

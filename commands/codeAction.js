@@ -17,8 +17,8 @@ define(function(require, exports, module) {
   function CodeActionsInlineEditor(pos, hostEditor) {
     InlineWidget.call(this);
     this.hostEditor = hostEditor;
+
   }
-  CodeActionsInlineEditor.prototype.hostEditor = null;
   CodeActionsInlineEditor.prototype = Object.create(InlineWidget.prototype);
   CodeActionsInlineEditor.prototype.constructor = CodeActionsInlineEditor;
   CodeActionsInlineEditor.prototype.parentClass = InlineWidget.prototype;
@@ -48,27 +48,50 @@ define(function(require, exports, module) {
     var self = this;
     console.log("codeAction exectuted");
 
+    var sidebar = $(self.$htmlContent);
+    var list = $('ul', sidebar);
+
+    self.actionsList = list;
+
     var data = Helpers.buildRequest();
     Omnisharp.makeRequest('getcodeactions', data, function(err, returnedData) {
-      var sidebar = $(self.$htmlContent);
-      var list = $('ul', sidebar);
-
       //todo, grab strings for titles/etc properly
       list.append($('<li>').attr('class', 'section-header').append(($('<span>').text('Code Actions'))));
       if (returnedData.CodeActions) {
         $(returnedData.CodeActions).each(function(i, el) {
-          list.append($('<li>').append(($('<span>').text(el))));
-          //attach events to each li here
+          var item = self._createListItem(el)
+          list.append(item);
         });
       }
-
-
     });
   };
 
+
+  CodeActionsInlineEditor.prototype._createListItem = function(action, index) {
+    var self = this;
+    var listItem = $('<li>').append(($('<span>').text(action))).data('idx', index);
+
+    listItem.mousedown(function() {
+      self.listItemSelected($(this).data('idx'));
+    });
+    return listItem;
+  };
+
+  CodeActionsInlineEditor.prototype.listItemSelected = function(index) {
+    var self = this;
+    var data = Helpers.buildRequest();
+    data.codeaction = index;
+
+    Omnisharp.makeRequest('runcodeaction', data, function(err, data) {
+      //get the document and set the new text
+      self.hostEditor.document.setText(data.Text);
+    });
+  }
+
+
   function codeActionsInlineEditorProvider(hostEditor, pos) {
-    var langId = hostEditor.getLanguageForSelection().getId();
-    if (langId !== "csharp") {
+
+    if (!Helpers.isCSharp()) {
       return null;
     }
     var inlineEditor = new CodeActionsInlineEditor(pos, hostEditor);
@@ -81,6 +104,4 @@ define(function(require, exports, module) {
 
 
   exports.exec = exec;
-
-
 });
