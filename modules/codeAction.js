@@ -4,9 +4,11 @@ define(function (require, exports, module) {
     'use strict';
 
     var EditorManager = brackets.getModule("editor/EditorManager"),
+        CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         DocumentManager = brackets.getModule('document/DocumentManager'),
         Omnisharp = require('modules/omnisharp'),
         Helpers = require('modules/helpers'),
+        runmode = require('modules/runmode'),
         InlineWidget = brackets.getModule("editor/InlineWidget").InlineWidget;
 
 
@@ -37,8 +39,8 @@ define(function (require, exports, module) {
     };
 
     CodeActionsInlineEditor.prototype._adjustHeight = function () {
-        var inlineWidgetHeight = 100; //todo: somehow make this dynamic :(
-        this.hostEditor.setInlineWidgetHeight(this, inlineWidgetHeight);
+        /*        var inlineWidgetHeight = 100; //todo: somehow make this dynamic :(*/
+        this.hostEditor.setInlineWidgetHeight(this, 100);
     };
 
 
@@ -70,22 +72,74 @@ define(function (require, exports, module) {
         var listItem = $('<li>').append(($('<span>').text(action))).data('idx', index);
 
         listItem.mousedown(function () {
-            self.listItemSelected($(this).data('idx'));
+            var selectedItem = $(this);
+            self.setSelectedItem(selectedItem);
+
+        });
+
+        listItem.dblclick(function () {
+            self.runCodeAction($(this).data('idx'));
         });
         return listItem;
     };
 
-    CodeActionsInlineEditor.prototype.listItemSelected = function (index) {
+    CodeActionsInlineEditor.prototype.setSelectedItem = function (jqueryListItem) {
+        //TODO: , move these and the container to memeber properties
+        var container = jqueryListItem.parents(".code-action-container");
+        var index = jqueryListItem.data('idx');
+        //move the seleceted item down
+        var containerHeight = container.height();
+        var itemTop = jqueryListItem.position().top;
+        var scrollTop = container.scrollTop();
+
+        $(".selection", container)
+            .show()
+            .toggleClass("animate", true)
+            .css("top", itemTop)
+            .height(jqueryListItem.outerHeight());
+
+        // finally, we set the preview
+        this.previewCodeAction(jqueryListItem.data('idx'));
+
+    };
+
+    CodeActionsInlineEditor.prototype.previewCodeAction = function (index) {
+        var self = this;
+        //run the code action, and get the preview with some hackery
+        this._getCodeActionResult(index, function (text) {
+            //$('.inline-editor-holder', self.$htmlContent).append($('<pre class="code">').text(text));
+
+            var inMemoryElement = $("<pre>");
+            inMemoryElement.addClass("code");
+            inMemoryElement.text(text);
+
+
+            CodeMirror.runMode(inMemoryElement, "csharp", $('.inline-editor-holder .omnisharp-code', self.$htmlContent).get(0));
+        });
+    };
+
+
+
+    CodeActionsInlineEditor.prototype.runCodeAction = function (index) {
+        var self = this;
+        //run the code action, and get the preview with some hackery
+        this._getCodeActionResult(index, function (text) {
+            self.hostEditor.document.setText(text);
+        });
+    };
+
+
+    CodeActionsInlineEditor.prototype._getCodeActionResult = function (index, callback) {
         var self = this;
         var data = Helpers.buildRequest();
         data.codeaction = index;
 
         Omnisharp.makeRequest('runcodeaction', data, function (err, data) {
-            //get the document and set the new text
-            self.hostEditor.document.setText(data.Text);
+            if (callback) {
+                callback(data.Text);
+            }
         });
     };
-
 
     function codeActionsInlineEditorProvider(hostEditor, pos) {
         if (!Helpers.isCSharp()) {
@@ -103,16 +157,7 @@ define(function (require, exports, module) {
     function init() {
         EditorManager.registerInlineEditProvider(codeActionsInlineEditorProvider);
     }
-    
-    
+
     exports.init = init;
-   
+
 });
-//lots of extra lines, just for mat
-
-
-
-
-
-
-

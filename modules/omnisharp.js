@@ -88,7 +88,7 @@ define(function (require, exports, module) {
     function isOmnisharpRunning() {
         return isRunning;
     }
-    
+
     AppInit.appReady(function () {
         $(Omnisharp).on('omnisharpError', onOmnisharpError);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpQuit);
