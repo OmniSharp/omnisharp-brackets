@@ -17,7 +17,7 @@ define(function (require, exports, module) {
     function CodeActionsInlineEditor(pos, hostEditor) {
         InlineWidget.call(this);
         this.hostEditor = hostEditor;
-
+        
     }
     CodeActionsInlineEditor.prototype = Object.create(InlineWidget.prototype);
     CodeActionsInlineEditor.prototype.constructor = CodeActionsInlineEditor;
@@ -26,6 +26,8 @@ define(function (require, exports, module) {
     CodeActionsInlineEditor.prototype.load = function (hostEditor) {
         CodeActionsInlineEditor.prototype.parentClass.load.apply(this, arguments);
         $(inlineEditorTemplate).appendTo(this.$htmlContent);
+        this.previewPane = $('.inline-editor-holder .omnisharp-code', this.$htmlContent).get(0);
+
     };
 
     CodeActionsInlineEditor.prototype.onAdded = function () {
@@ -40,7 +42,10 @@ define(function (require, exports, module) {
 
     CodeActionsInlineEditor.prototype._adjustHeight = function () {
         /*        var inlineWidgetHeight = 100; //todo: somehow make this dynamic :(*/
-        this.hostEditor.setInlineWidgetHeight(this, 100);
+        
+        //set the hight to 10 lines for now?
+        this.lineHeight = +($(this.previewPane).css('line-height').replace('px', ''));
+        this.hostEditor.setInlineWidgetHeight(this, this.lineHeight * 10 + 'px');
     };
 
 
@@ -105,16 +110,10 @@ define(function (require, exports, module) {
 
     CodeActionsInlineEditor.prototype.previewCodeAction = function (index) {
         var self = this;
-        //run the code action, and get the preview with some hackery
-        this._getCodeActionResult(index, function (text) {
-            //$('.inline-editor-holder', self.$htmlContent).append($('<pre class="code">').text(text));
-
-            var inMemoryElement = $("<pre>");
-            inMemoryElement.addClass("code");
-            inMemoryElement.text(text);
-
-
-            CodeMirror.runMode(inMemoryElement, "csharp", $('.inline-editor-holder .omnisharp-code', self.$htmlContent).get(0));
+        this._getCodeActionResult(index, function (text, lineNumber) {
+            self.previewPane.innerHTML = '';
+            CodeMirror.runMode(text, "csharp", self.previewPane);
+            //scroll the correct line into view, i hate css
         });
     };
 
@@ -123,7 +122,7 @@ define(function (require, exports, module) {
     CodeActionsInlineEditor.prototype.runCodeAction = function (index) {
         var self = this;
         //run the code action, and get the preview with some hackery
-        this._getCodeActionResult(index, function (text) {
+        this._getCodeActionResult(index, function (text, lineNumber) {
             self.hostEditor.document.setText(text);
         });
     };
@@ -133,10 +132,10 @@ define(function (require, exports, module) {
         var self = this;
         var data = Helpers.buildRequest();
         data.codeaction = index;
-
+        var cursor = this.hostEditor.getCursorPos(true, "start");
         Omnisharp.makeRequest('runcodeaction', data, function (err, data) {
             if (callback) {
-                callback(data.Text);
+                callback(data.Text, cursor.line + 1);
             }
         });
     };

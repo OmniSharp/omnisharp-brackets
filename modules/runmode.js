@@ -1,5 +1,12 @@
-var CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror");
-
+CodeMirror.htmlEscape = function(str)
+{
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
 
 CodeMirror.runMode = function (string, modespec, callback, options) {
     var mode = CodeMirror.getMode(CodeMirror.defaults, modespec);
