@@ -41,7 +41,7 @@ define(function (require, exports, module) {
         }
 
         return {
-            pos: { line: problem.Line - 1, ch: problem.Column },
+            pos: { line: problem.Line - 1, ch: problem.Column - 1},
             message: problem.Text,
             type: getLogLevel(problem.LogLevel)
         };
