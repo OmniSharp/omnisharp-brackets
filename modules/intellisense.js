@@ -52,11 +52,7 @@ define(function (require, exports, module) {
     
     var intellisense = {
         hasHints: function (editor, implicitChar) {
-            if (implicitChar === ' ' || implicitChar === null || implicitChar === '.') {
-                return true;
-            }
-            
-            return false;
+            return implicitChar.match(/[\w\.]/) !== null;
         },
         getHints: function (implicitChar) {
             var deferred = $.Deferred(),
