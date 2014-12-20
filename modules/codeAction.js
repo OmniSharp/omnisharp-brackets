@@ -7,18 +7,49 @@ define(function (require, exports, module) {
         CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         DocumentManager = brackets.getModule('document/DocumentManager'),
         Omnisharp = require('modules/omnisharp'),
-        Helpers = require('modules/helpers'),
-        runmode = require('modules/runmode'),
+        Helpers = require('modules/helpers'),        
+        Differ = require('modules/differ'),
         InlineWidget = brackets.getModule("editor/InlineWidget").InlineWidget;
-
 
     var inlineEditorTemplate = require("text!omnisharp-codeactions-editor-template.html");
 
+    function getCodeActionResult(index, callback) {
+        var req = Helpers.buildRequest();
+        req.codeAction = index;
+        
+        // curious about this line
+        //var cursor = this.hostEditor.getCursorPos(true, "start");
+        
+        Omnisharp.makeRequest('runcodeaction', req, function (err, res) {
+            var document = DocumentManager.getCurrentDocument();
+            var code = Differ.diff(document.getText().split('\n'), res.Text.split('\n'));
+           
+            callback(code, 0);
+        });
+    }
+    
+    function getCodeActions(callback) {
+        var req = Helpers.buildRequest();
+        
+        Omnisharp.makeRequest('getcodeactions', req, function (err, res) {
+            if (res.CodeActions) {
+                callback(res.CodeActions);
+            } else {
+                callback([]);
+            }
+        });
+    }
+    
+    function getCursorPosition() {
+        var editor = EditorManager.getActiveEditor();
+        return editor.getCursorPos(true, "start");
+    }
+    
     function CodeActionsInlineEditor(pos, hostEditor) {
         InlineWidget.call(this);
         this.hostEditor = hostEditor;
-        
     }
+    
     CodeActionsInlineEditor.prototype = Object.create(InlineWidget.prototype);
     CodeActionsInlineEditor.prototype.constructor = CodeActionsInlineEditor;
     CodeActionsInlineEditor.prototype.parentClass = InlineWidget.prototype;
@@ -27,10 +58,10 @@ define(function (require, exports, module) {
         CodeActionsInlineEditor.prototype.parentClass.load.apply(this, arguments);
         $(inlineEditorTemplate).appendTo(this.$htmlContent);
         this.previewPane = $('.inline-editor-holder .omnisharp-code', this.$htmlContent).get(0);
-
     };
 
     CodeActionsInlineEditor.prototype.onAdded = function () {
+        this.cursorPos = getCursorPosition();
         //go and get our stuff
         //CodeActionsInlineEditor.prototype.parentClass.load.apply(this, arguments);
         CodeActionsInlineEditor.prototype.parentClass.onAdded.apply(this, arguments);
@@ -41,9 +72,6 @@ define(function (require, exports, module) {
     };
 
     CodeActionsInlineEditor.prototype._adjustHeight = function () {
-        /*        var inlineWidgetHeight = 100; //todo: somehow make this dynamic :(*/
-        
-        //set the hight to 10 lines for now?
         this.lineHeight = +($(this.previewPane).css('line-height').replace('px', ''));
         this.hostEditor.setInlineWidgetHeight(this, this.lineHeight * 10 + 'px');
     };
@@ -54,89 +82,79 @@ define(function (require, exports, module) {
         console.log("codeAction exectuted");
 
         var sidebar = $(self.$htmlContent);
-        var list = $('ul', sidebar);
+        var $list = $('ul', sidebar);
 
-        self.actionsList = list;
+        $list.append(
+            $('<li>')
+                .attr('class', 'section-header')
+                .append(($('<span>').text('Code Actions')))
+        );
 
-        var data = Helpers.buildRequest();
-        Omnisharp.makeRequest('getcodeactions', data, function (err, returnedData) {
-            //todo, grab strings for titles/etc properly
-            list.append($('<li>').attr('class', 'section-header').append(($('<span>').text('Code Actions'))));
-            if (returnedData.CodeActions) {
-                $(returnedData.CodeActions).each(function (i, el) {
-                    var item = self._createListItem(el);
-                    list.append(item);
-                });
-            }
+        getCodeActions(function (codeActions) {
+            codeActions.forEach(function (codeAction, index) {
+                var $item = self._createListItem(codeAction, index);
+                $list.append($item);
+            });
+
+            self.setSelectedItem($('li:nth-child(2)', $list));
         });
     };
-
 
     CodeActionsInlineEditor.prototype._createListItem = function (action, index) {
         var self = this;
-        var listItem = $('<li>').append(($('<span>').text(action))).data('idx', index);
+        var listItem = $('<li>').append(($('<span>').text(action))).data('index', index);
 
         listItem.mousedown(function () {
-            var selectedItem = $(this);
-            self.setSelectedItem(selectedItem);
-
+            self.setSelectedItem($(this));
         });
 
         listItem.dblclick(function () {
-            self.runCodeAction($(this).data('idx'));
+            self.runCodeAction($(this).data('index'));
         });
+        
         return listItem;
     };
 
-    CodeActionsInlineEditor.prototype.setSelectedItem = function (jqueryListItem) {
-        //TODO: , move these and the container to memeber properties
-        var container = jqueryListItem.parents(".code-action-container");
-        var index = jqueryListItem.data('idx');
-        //move the seleceted item down
-        var containerHeight = container.height();
-        var itemTop = jqueryListItem.position().top;
-        var scrollTop = container.scrollTop();
+    CodeActionsInlineEditor.prototype.setSelectedItem = function ($listItem) {
+        var container = $listItem.parents(".code-action-container"),
+            containerHeight = container.height(),
+            itemTop = $listItem.position().top,
+            scrollTop = container.scrollTop();
 
         $(".selection", container)
             .show()
             .toggleClass("animate", true)
             .css("top", itemTop)
-            .height(jqueryListItem.outerHeight());
+            .height($listItem.outerHeight());
 
-        // finally, we set the preview
-        this.previewCodeAction(jqueryListItem.data('idx'));
-
+        this.previewCodeAction($listItem.data('index'));
     };
 
-    CodeActionsInlineEditor.prototype.previewCodeAction = function (index) {
-        var self = this;
-        this._getCodeActionResult(index, function (text, lineNumber) {
+    CodeActionsInlineEditor.prototype.previewCodeAction = function (codeAction) {
+        var self = this,
+            iterator = 0;
+        
+        getCodeActionResult(codeAction, function (buffer, lineNumber) {
+            // var lines = (buffer.split(/\n/g) || []);
+            
+            // var text = '';
+            // for (iterator = self.cursorPos.line - 2; iterator < lines.length; iterator++) {
+            //     text += lines[iterator] + '\n';
+            // }
+            
+            
             self.previewPane.innerHTML = '';
-            CodeMirror.runMode(text, "csharp", self.previewPane);
+            CodeMirror(self.previewPane, { value: buffer, lineNumbers: true, mode: 'text/x-csharp', readOnly: 'nocursor', firstLineNumber: 1 });
+            //CodeMirror.runMode(text, "csharp", self.previewPane);
             //scroll the correct line into view, i hate css
         });
     };
 
-
-
-    CodeActionsInlineEditor.prototype.runCodeAction = function (index) {
+    CodeActionsInlineEditor.prototype.runCodeAction = function (codeAction) {
         var self = this;
-        //run the code action, and get the preview with some hackery
-        this._getCodeActionResult(index, function (text, lineNumber) {
+        
+        getCodeActionResult(codeAction, function (text, lineNumber) {
             self.hostEditor.document.setText(text);
-        });
-    };
-
-
-    CodeActionsInlineEditor.prototype._getCodeActionResult = function (index, callback) {
-        var self = this;
-        var data = Helpers.buildRequest();
-        data.codeaction = index;
-        var cursor = this.hostEditor.getCursorPos(true, "start");
-        Omnisharp.makeRequest('runcodeaction', data, function (err, data) {
-            if (callback) {
-                callback(data.Text, cursor.line + 1);
-            }
         });
     };
 
@@ -158,5 +176,4 @@ define(function (require, exports, module) {
     }
 
     exports.init = init;
-
 });
