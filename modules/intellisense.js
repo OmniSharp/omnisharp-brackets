@@ -36,11 +36,7 @@ define(function (require, exports, module) {
         //     completion.ReturnType +
         //     '</strong></span>';
 
-        var completionHtml = '<span data-completiontext="' + completion.CompletionText + '" >' + completion.DisplayText;
-
-        if (completion.ReturnType !== null) {
-            completionHtml += ' : <strong>' + completion.ReturnType + '</strong>';
-        }
+        var completionHtml = '<span data-completiontext="' + completion.CompletionText + '" >' + completion.CompletionText + ' <span style="color:gray">' + completion.DisplayText + '</span>';
 
         return completionHtml + '</span>';
     }
@@ -52,7 +48,7 @@ define(function (require, exports, module) {
     
     var intellisense = {
         hasHints: function (editor, implicitChar) {
-            return implicitChar.match(/[\w\.]/) !== null;
+            return !implicitChar || implicitChar.match(/[\w\.]/) !== null;
         },
         getHints: function (implicitChar) {
             var deferred = $.Deferred(),
@@ -69,7 +65,7 @@ define(function (require, exports, module) {
                 if (err !== null) {
                     deferred.reject(err);
                 } else {
-
+                    
                     var completions = res.map(function (completion) {
                         return getCompletion(completion);
                     });

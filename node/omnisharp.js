@@ -32,7 +32,7 @@ maxerr: 50, node: true */
     }
 
     function getOmnisharpLocation() {
-        return path.join(__dirname, '..', 'omnisharp', 'omnisharp.exe');
+        return process.env['OMNISHARP'] || path.join(__dirname, '..', 'omnisharp', 'omnisharp.exe');
     }
 
     function startOmnisharp(projectLocation, callback) {
@@ -52,7 +52,7 @@ maxerr: 50, node: true */
                 args = ['-p', _port, '-s', projectLocation],
                 executable;
 
-            if (isMono) {
+            if (isMono && path.extname(location) == '.exe') {
                 executable = 'mono';
                 args.unshift(location);
             } else {
@@ -63,16 +63,10 @@ maxerr: 50, node: true */
 
             _omnisharpProcess.stdout.on('data', function (data) {
                 console.info(data.toString());
-                var ready = (data.toString().match(/Solution has finished loading/) || 0).length > 0;
-
-                if (ready) {
-                    _domainManager.emitEvent(_domainName, 'omnisharpReady');
-                }
             });
 
             _omnisharpProcess.stderr.on('data', function (data) {
-                console.error(data.toString());
-                _domainManager.emitEvent(_domainName, 'omnisharpError', data);
+                console.info(data.toString());
             });
 
             _omnisharpProcess.on('close', function (data) {
@@ -81,11 +75,29 @@ maxerr: 50, node: true */
             });
 
             callback(null, _port);
+
+            setTimeout(checkReady, 3000);
+        });
+    }
+
+    function checkReady() {
+        console.info('Checking omnisharp status');
+
+        request.post('http://localhost:' + _port + '/checkreadystatus', { }, 
+        function (err, res, body) {
+            if (!err && res.statusCode === 200 && body == 'true') {
+                _domainManager.emitEvent(_domainName, 'omnisharpReady');
+            } else {
+                // TODO: Exponential back off with a maximum timeout
+                setTimeout(checkReady, 5000);
+            }
         });
     }
 
     function stopOmnisharp() {
         if (_omnisharpProcess !== null) {
+            console.info('Killing omnisharp process');
+
             _omnisharpProcess.kill('SIGKILL');
             _omnisharpProcess = null;
         }

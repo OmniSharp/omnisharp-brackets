@@ -60,7 +60,7 @@ define(function (require, exports, module) {
         }
 
         var data = Helpers.buildRequest();
-
+        
         Omnisharp.makeRequest('codecheck', data, function (err, data) {
             if (err !== null) {
                 deferred.reject();
