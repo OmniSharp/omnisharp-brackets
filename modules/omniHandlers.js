@@ -3,14 +3,15 @@
 
 define(function (require, exports, module) {
     'use strict';
-    
+
     var CommandManager = brackets.getModule('command/CommandManager'),
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp'),
         OmniCommands = require('modules/omniCommands'),
         OmniStrings = require('modules/omniStrings'),
-        renameCommand = require('commands/rename'),
-        goToDefinitionCommand = require('commands/goToDefinition');
+        RenameCommand = require('commands/rename'),
+        goToDefinitionCommand = require('commands/goToDefinition'),
+        Preferences = require('modules/preferences');
 
     function fixCodeIssue() {
         Helpers.makeRequestAndRefreshDocument('fixcodeissue');
@@ -24,11 +25,16 @@ define(function (require, exports, module) {
         Helpers.makeRequestAndRefreshDocument('fixusings');
     }
 
-    CommandManager.register(OmniStrings.CMD_FORMAT_DOCUMENT, OmniCommands.FORMAT_DOCUMENT, formatDocument);
-    CommandManager.register(OmniStrings.CMD_FIX_USINGS, OmniCommands.FIX_USINGS, fixUsings);
-    CommandManager.register(OmniStrings.CMD_GO_TO_DEFINITION, OmniCommands.GO_TO_DEFINITION, goToDefinitionCommand.exec);
-    CommandManager.register(OmniStrings.CMD_RENAME, OmniCommands.RENAME, renameCommand.exec);
-    CommandManager.register(OmniStrings.CMD_START_OMNISHARP, OmniCommands.START_OMNISHARP, Omnisharp.start);
-    CommandManager.register(OmniStrings.CMD_STOP_OMNISHARP, OmniCommands.STOP_OMNISHARP, Omnisharp.stop);
-    CommandManager.register(OmniStrings.CMD_FIX_CODE_ISSUE, OmniCommands.FIX_CODE_ISSUE, fixCodeIssue);
+    function init() {
+        CommandManager.register(OmniStrings.CMD_FORMAT_DOCUMENT, OmniCommands.FORMAT_DOCUMENT, formatDocument);
+        CommandManager.register(OmniStrings.CMD_FIX_USINGS, OmniCommands.FIX_USINGS, fixUsings);
+        CommandManager.register(OmniStrings.CMD_GO_TO_DEFINITION, OmniCommands.GO_TO_DEFINITION, goToDefinitionCommand.exec);
+        CommandManager.register(OmniStrings.CMD_RENAME, OmniCommands.RENAME, RenameCommand.exec);
+        CommandManager.register(OmniStrings.CMD_START_OMNISHARP, OmniCommands.START_OMNISHARP, Omnisharp.start);
+        CommandManager.register(OmniStrings.CMD_STOP_OMNISHARP, OmniCommands.STOP_OMNISHARP, Omnisharp.stop);
+        CommandManager.register(OmniStrings.CMD_FIX_CODE_ISSUE, OmniCommands.FIX_CODE_ISSUE, fixCodeIssue);
+        CommandManager.register(OmniStrings.CMD_OPEN_PREFERENCES, OmniCommands.OPEN_PREFERENCES, Preferences.open);
+    }
+
+    exports.init = init;
 });

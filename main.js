@@ -15,7 +15,7 @@ define(function (require, exports, module) {
         Toolbar = require('modules/toolbar'),
         OmniCommands = require('modules/omniCommands'),
         OmniHandlers = require('modules/omniHandlers'),
-        OmniStrings = require('modules/omniStrings');
+        Preferences = require('modules/preferences');
 
     function enable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
@@ -33,28 +33,33 @@ define(function (require, exports, module) {
 
     function createMenu() {
         var menu = Menus.addMenu('Omnisharp', 'omnisharp.omnisharp-brackets.omnisharpMenu');
-        
+
         menu.addMenuItem(OmniCommands.START_OMNISHARP);
         menu.addMenuItem(OmniCommands.STOP_OMNISHARP);
+        menu.addMenuItem(OmniCommands.OPEN_PREFERENCES);
         menu.addMenuDivider();
         menu.addMenuItem(OmniCommands.FIX_USINGS);
         menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT);
 
         disable();
     }
-    
-    AppInit.appReady(function () {
-        ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
 
-        createMenu();
-        
-        $(Omnisharp).on('omnisharpReady', enable);
-        $(Omnisharp).on('omnisharpQuit', disable);
-        $(Omnisharp).on('omnisharpError', disable);
-        
-        ContextMenu.init();
-        CodeInspection.init();
-        Intellisense.init();
-        Toolbar.init();
+    AppInit.appReady(function () {
+        Preferences.loadPreferences(function () {
+            OmniHandlers.init();
+            Omnisharp.init();
+            ContextMenu.init();
+            CodeInspection.init();
+            Intellisense.init();
+            Toolbar.init();
+
+            ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
+
+            createMenu();
+
+            $(Omnisharp).on('omnisharpReady', enable);
+            $(Omnisharp).on('omnisharpQuit', disable);
+            $(Omnisharp).on('omnisharpError', disable);
+        });
     });
 });

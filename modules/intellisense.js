@@ -1,9 +1,9 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, $, brackets, window */
+/*global define, $, brackets, window, CodeMirror */
 
 define(function (require, exports, module) {
     'use strict';
-    
+
     var AppInit = brackets.getModule('utils/AppInit'),
         CodeHintManager = brackets.getModule('editor/CodeHintManager'),
         EditorManager = brackets.getModule("editor/EditorManager"),
@@ -11,77 +11,130 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         Snippets = require('modules/snippets');
 
-    var tokenRegEx = /[A-Za-z0-9_]/;
-    
+    var isIdentifierRegEx = /^[a-zA-Z._(]+$/,
+        getHintsRegEx = /^[a-zA-Z0-9._(]+$/,
+        cleanTokenRegEx = /^[a-zA-Z0-9_]+$/,
+        showOnDot = true,
+        mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp');
+
+    function isIdentifier(key) {
+        return key.match(isIdentifierRegEx) !== null;
+    }
+
+    function hintableKey(key) {
+        return (key === null || (showOnDot && key === '.') || isIdentifier(key));
+    }
+
+    function hintable(token) {
+        switch (token.type) {
+        case 'comment':
+        case 'number':
+        case 'regexp':
+        case 'string':
+        case 'def':
+            return false;
+        default:
+            return true;
+        }
+    }
+
+    function highlightLine(line) {
+        var stream = new CodeMirror.StringStream(line),
+            result,
+            node = document.createElement('span'),
+            state = CodeMirror.startState(mode);
+
+        while (!stream.eol()) {
+            var style = mode.token(stream, state);
+
+            if (style) {
+                var sp = node.appendChild(document.createElement('span'));
+                sp.className = 'cm-' + style.replace(/ +/g, ' cm-');
+                sp.appendChild(document.createTextNode(stream.current()));
+            } else {
+                node.appendChild(document.createTextNode(stream.current()));
+            }
+            stream.start = stream.pos;
+        }
+
+        return node.innerHTML;
+    }
+
     function getCursor() {
         var editor = EditorManager.getActiveEditor();
         return editor.getCursorPos();
     }
-    
+
     function getToken(cursor) {
         var editor = EditorManager.getActiveEditor();
         var codeMirror = editor._codeMirror;
         return codeMirror.getTokenAt(cursor);
     }
-    
-    function getCompletion(completion) {
-        // var completionText = completion.Snippet || completion.CompletionText;
-        // return '<span data-completiontext="' +
-        //     completionText +
-        //     '" data-issnippet="' +
-        //     (completion.Snippet !== false).toString() +
-        //     '" >' +
-        //     completion.DisplayText +
-        //     ' : <strong>' +
-        //     completion.ReturnType +
-        //     '</strong></span>';
 
-        var completionHtml = '<span data-completiontext="' + completion.CompletionText + '" >' + completion.CompletionText + ' <span style="color:gray">' + completion.DisplayText + '</span>';
+    function cleanToken(token) {
+        if (token.string === '.') {
+            return '';
+        }
+        return token.string;
+    }
+
+    function getCompletion(completion) {
+        var completionHtml = '<span data-completiontext="' + completion.CompletionText + '" >' + completion.DisplayText + '</span>';
 
         return completionHtml + '</span>';
     }
-    
+
     function prepSnippet(completionText) {
         var snippet = completionText.replace(/\{\d\:/g, '{');
+
         return snippet.replace('$0', '${cursor}');
     }
-    
+
     var intellisense = {
-        hasHints: function (editor, implicitChar) {
-            return !implicitChar || implicitChar.match(/[\w\.]/) !== null;
+        hasHints: function (editor, key) {
+            return hintableKey(key);
         },
-        getHints: function (implicitChar) {
-            var deferred = $.Deferred(),
-                data = Helpers.buildRequest(),
-                cursor = getCursor(),
-                token = getToken(cursor).string,
-                cleanToken = tokenRegEx.test(token) ? token : '';
-            
-            data.wordToComplete = cleanToken;
-            data.wantReturnType = true;
-            data.wantSnippet = true;
-            
-            Omnisharp.makeRequest('autocomplete', data, function (err, res) {
-                if (err !== null) {
-                    deferred.reject(err);
-                } else {
-                    
-                    var completions = res.map(function (completion) {
-                        return getCompletion(completion);
-                    });
+        getHints: function (key) {
+            var cursor = getCursor(),
+                token = getToken(cursor);
 
-                    var results = {
-                        hints: completions,
-                        match: null,
-                        selectInitial: true,
-                        handleWideResults: true
-                    };
-
-                    deferred.resolve(results);
+            if (token && hintableKey(key) && hintable(token)) {
+                if (CodeHintManager.isOpen() && token.type === null && token.string !== '.') {
+                    return false;
                 }
-            });
-                
-            return deferred;
+
+                var deferred = $.Deferred(),
+                    data = Helpers.buildRequest(),
+                    cleanedToken = cleanToken(token);
+
+                data.wordToComplete = cleanedToken;
+                data.wantReturnType = true;
+                data.wantSnippet = true;
+
+                Omnisharp.makeRequest('autocomplete', data, function (err, res) {
+                    if (err !== null) {
+                        deferred.reject(err);
+                    } else {
+
+                        var completions = res.map(function (completion) {
+                            return getCompletion(completion);
+                        });
+
+                        var results = {
+                            hints: completions,
+                            match: null,
+                            selectInitial: true,
+                            handleWideResults: true
+                        };
+
+                        deferred.resolve(results);
+                    }
+                });
+
+                return deferred;
+            }
+
+            return null;
         },
         insertHint: function (hint) {
             var editor = EditorManager.getActiveEditor(),
@@ -89,9 +142,8 @@ define(function (require, exports, module) {
                 completionText = data.completiontext,
                 cursor = getCursor(),
                 token = getToken(cursor),
-                adjustment = tokenRegEx.test(token.string) ? 0 : 1;
-            
-            
+                adjustment = token.string === '.' ? 1 : 0;
+
             var start = {
                 line: cursor.line,
                 ch: token.start + adjustment
@@ -101,16 +153,18 @@ define(function (require, exports, module) {
                 line: cursor.line,
                 ch: cursor.ch + adjustment
             };
-
-            // if (data.issnippet) {
-            //     var snippet = prepSnippet(completionText);
-            //     Snippets.install({ from: start, to: end }, snippet);
-            // } else {
+//
+//            // if (data.issnippet) {
+//            //     var snippet = prepSnippet(completionText);
+//            //     Snippets.install({ from: start, to: end }, snippet);
+//            // } else {
             editor._codeMirror.replaceRange(completionText, start, end);
-            // }
-    
+//            // }
+
             return false;
-        }
+        },
+        insertHintOnTab: true
+
     };
 
     function onOmnisharpReady() {
@@ -120,12 +174,12 @@ define(function (require, exports, module) {
     function onOmnisharpEnd() {
         CodeHintManager._removeHintProvider(intellisense, ['csharp']);
     }
-    
+
     function init() {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
         $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
     }
-    
+
     exports.init = init;
 });

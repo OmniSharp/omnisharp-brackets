@@ -8,10 +8,11 @@ define(function (require, exports, module) {
         Menus = brackets.getModule('command/Menus'),
         CommandManager = brackets.getModule('command/CommandManager'),
         Helpers = require('modules/helpers'),
-        OmniCommands = require('modules/omniCommands');
+        OmniCommands = require('modules/omniCommands'),
+        Preferences = require('modules/preferences');
 
     var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
-    
+
     function enable() {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(true);
         CommandManager.get(OmniCommands.RENAME).setEnabled(true);
@@ -23,12 +24,12 @@ define(function (require, exports, module) {
         CommandManager.get(OmniCommands.RENAME).setEnabled(false);
         CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(false);
     }
-    
+
     function beforeContextMenuOpen() {
         if (Helpers.isCSharp()) {
-            contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION);
-            contextMenu.addMenuItem(OmniCommands.RENAME);
-            contextMenu.addMenuItem(OmniCommands.FIX_CODE_ISSUE);
+            contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION, Preferences.get().keyboardShortcuts.goToDefinition);
+            contextMenu.addMenuItem(OmniCommands.RENAME, Preferences.get().keyboardShortcuts.rename);
+            contextMenu.addMenuItem(OmniCommands.FIX_CODE_ISSUE, Preferences.get().keyboardShortcuts.fixCodeIssue);
         } else {
             contextMenu.removeMenuItem(OmniCommands.GO_TO_DEFINITION);
             contextMenu.removeMenuItem(OmniCommands.RENAME);
@@ -40,7 +41,7 @@ define(function (require, exports, module) {
         disable();
 
         $(contextMenu).on("beforeContextMenuOpen", beforeContextMenuOpen);
-        
+
         $(Omnisharp).on('omnisharpReady', enable);
         $(Omnisharp).on('omnisharpQuit', disable);
         $(Omnisharp).on('omnisharpError', disable);
