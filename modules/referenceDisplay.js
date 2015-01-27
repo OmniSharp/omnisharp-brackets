@@ -25,18 +25,17 @@ define(function (require, exports, module) {
 
     function processMember(member) {
         var codeMirror = getCodeMirror(),
-        var document = DocumentManager.getCurrentDocument(),
-        var dataToSend = {
-            filename: document.file._path,
-            line: member.Line + 1,
-            column: member.Column + 1
-        };
+            document = DocumentManager.getCurrentDocument(),
+            dataToSend = {
+                filename: document.file._path,
+                line: member.Line + 1,
+                column: member.Column + 1
+            };
         Omnisharp.makeRequest('findusages', dataToSend, function (err, data) {
             if (err !== null) {
                 console.error(err);
             } else {
-                var whitespace = getLeadingWhitespace(member.Line);
-                var widget = codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + whitespace + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
+                codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + getLeadingWhitespace(member.Line) + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
                     coverGutter: false,
                     noHScroll: true
                 });
@@ -46,9 +45,9 @@ define(function (require, exports, module) {
 
     function load() {
         var document = DocumentManager.getCurrentDocument(),
-        var dataToSend = {
-            filename: document.file._path
-        };
+            dataToSend = {
+                filename: document.file._path
+            };
         Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
             if (err !== null) {
                 console.error(err);
