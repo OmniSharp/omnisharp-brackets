@@ -37,7 +37,7 @@ define(function (require, exports, module) {
             } else {
 
                 var whitespace = getLeadingWhitespace(member.Line);
-                var widget = codeMirror.addLineWidget(member.Line - 1, $('<pre class="omnisharp-reference-display">' + whitespace + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
+                var widget = codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + whitespace + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
                     coverGutter: false,
                     noHScroll: true
                 });
