@@ -15,6 +15,7 @@ define(function (require, exports, module) {
         Toolbar = require('modules/toolbar'),
         OmniCommands = require('modules/omniCommands'),
         OmniHandlers = require('modules/omniHandlers'),
+        ReferenceDisplay = require('modules/referenceDisplay'),
         Preferences = require('modules/preferences');
 
     function enable() {
@@ -52,6 +53,7 @@ define(function (require, exports, module) {
             CodeInspection.init();
             Intellisense.init();
             Toolbar.init();
+            ReferenceDisplay.init();
 
             ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
 
