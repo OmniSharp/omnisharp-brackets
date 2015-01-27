@@ -24,8 +24,8 @@ define(function (require, exports, module) {
     }
 
     function processMember(member) {
-        var codeMirror = getCodeMirror();
-        var document = DocumentManager.getCurrentDocument();
+        var codeMirror = getCodeMirror(),
+        var document = DocumentManager.getCurrentDocument(),
         var dataToSend = {
             filename: document.file._path,
             line: member.Line + 1,
@@ -35,7 +35,6 @@ define(function (require, exports, module) {
             if (err !== null) {
                 console.error(err);
             } else {
-
                 var whitespace = getLeadingWhitespace(member.Line);
                 var widget = codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + whitespace + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
                     coverGutter: false,
@@ -46,7 +45,7 @@ define(function (require, exports, module) {
     }
 
     function load() {
-        var document = DocumentManager.getCurrentDocument();
+        var document = DocumentManager.getCurrentDocument(),
         var dataToSend = {
             filename: document.file._path
         };
@@ -70,19 +69,17 @@ define(function (require, exports, module) {
         isRunning = false;
     }
 
-
     function init() {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
         $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
 
         isRunning = false;
-        EditorManager.on("activeEditorChange", function (a, b, c) {
+        EditorManager.on("activeEditorChange", function (a,b,c) {
             if (isRunning) {
                 load();
             }
         });
-
     }
     exports.init = init;
 });
