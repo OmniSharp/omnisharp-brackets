@@ -50,3 +50,39 @@ span.omnisharp-warning {
     padding-bottom: 2px;
     vertical-align: text-top;
 }
+
+span.intellisense-icon {
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+    float: left;
+    margin-left: 13px;
+}
+
+span.method {
+    background-image: url('images/method.png');
+}
+
+span.keyword, span.local {
+    background-image: url('images/field.png');
+}
+
+span.property {
+    background-image: url('images/property.png');
+}
+
+span.namespace {
+    background-image: url('images/namespace.png');
+}
+
+span.namedtype {
+    background-image: url('images/class.png');
+}
+
+span.intellisense {
+    line-height: 16px !important;
+    display: inline-block;
+    float: left;
+    margin-left: 13px;
+    vertical-align: middle;
+}
