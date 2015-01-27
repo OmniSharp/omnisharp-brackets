@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var AppInit = brackets.getModule('utils/AppInit'),
         CodeHintManager = brackets.getModule('editor/CodeHintManager'),
         EditorManager = brackets.getModule("editor/EditorManager"),
+        CodeHintList = brackets.getModule("editor/CodeHintList").CodeHintList,
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp'),
         Snippets = require('modules/snippets');
@@ -15,7 +16,8 @@ define(function (require, exports, module) {
         getHintsRegEx = /^[a-zA-Z0-9._(]+$/,
         cleanTokenRegEx = /^[a-zA-Z0-9_]+$/,
         showOnDot = true,
-        mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp');
+        mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp'),
+        font;
 
     function isIdentifier(key) {
         return key.match(isIdentifierRegEx) !== null;
@@ -75,11 +77,11 @@ define(function (require, exports, module) {
         if (token.string === '.') {
             return '';
         }
-        return token.string;
+        return token.string.replace(/\s+$/,""); // rtrim
     }
 
     function getCompletion(completion) {
-        var completionHtml = '<span data-completiontext="' + completion.CompletionText + '" >' + completion.DisplayText + '</span>';
+        var completionHtml = '<span class="intellisense-icon ' + completion.Kind.toLowerCase() + '"></span><span class="force-syntax-highlighting intellisense" style="font-family:' + font + ';font-size: 11px;" data-completiontext="' + completion.CompletionText + '" >' + highlightLine(completion.DisplayText) + '</span>';
 
         return completionHtml + '</span>';
     }
@@ -98,6 +100,8 @@ define(function (require, exports, module) {
             var cursor = getCursor(),
                 token = getToken(cursor);
 
+            font = font || $(".CodeMirror").css("font-family");
+
             if (token && hintableKey(key) && hintable(token)) {
                 if (CodeHintManager.isOpen() && token.type === null && token.string !== '.') {
                     return false;
@@ -110,6 +114,7 @@ define(function (require, exports, module) {
                 data.wordToComplete = cleanedToken;
                 data.wantReturnType = true;
                 data.wantSnippet = true;
+                data.wantKind = true;
 
                 Omnisharp.makeRequest('autocomplete', data, function (err, res) {
                     if (err !== null) {
@@ -124,7 +129,7 @@ define(function (require, exports, module) {
                             hints: completions,
                             match: null,
                             selectInitial: true,
-                            handleWideResults: true
+                            handleWideResults: false
                         };
 
                         deferred.resolve(results);
@@ -138,7 +143,7 @@ define(function (require, exports, module) {
         },
         insertHint: function (hint) {
             var editor = EditorManager.getActiveEditor(),
-                data = $(hint).data(),
+                data = $($(hint)[1]).data(),
                 completionText = data.completiontext,
                 cursor = getCursor(),
                 token = getToken(cursor),
@@ -163,7 +168,9 @@ define(function (require, exports, module) {
 
             return false;
         },
-        insertHintOnTab: true
+        insertHintOnTab: true,
+        // https://github.com/dotnet/roslyn/blob/master/src/Features/CSharp/Completion/CompletionProviders/CompletionUtilities.cs#L33
+        insertHintOnOther: [190, 219, 186]
 
     };
 
