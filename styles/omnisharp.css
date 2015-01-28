@@ -63,7 +63,7 @@ span.method {
     background-image: url('images/method.png');
 }
 
-span.keyword, span.local {
+span.keyword, span.local, span.field {
     background-image: url('images/field.png');
 }
 
