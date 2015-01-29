@@ -8,6 +8,8 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-export SET KRE_APPBASE="$DIR/approot/packages/OmniSharp/1.0.0/root"
-
-"$DIR/approot/packages/KRE-CLR-x86.1.0.0-beta2/bin/klr" Microsoft.Framework.ApplicationHost omnisharp "$@"
+if [ -f "$DIR/mono" ]; then
+  "$DIR/mono" $MONO_OPTIONS "$DIR/klr.mono.managed.dll" "$@"
+else
+  mono $MONO_OPTIONS "$DIR/klr.mono.managed.dll" "$@"
+fi

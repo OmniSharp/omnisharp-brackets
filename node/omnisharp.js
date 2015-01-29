@@ -58,7 +58,8 @@ maxerr: 50, node: true */
     }
 
     function getOmnisharpLocation() {
-        return process.env['OMNISHARP'] || path.join(__dirname, '..', 'omnisharp', 'omnisharp.cmd');
+        var script = process.platform === 'win32' ? 'omnisharp.cmd' : 'omnisharp';
+        return process.env['OMNISHARP'] || path.join(__dirname, '..', 'omnisharp', script);
     }
 
     function startOmnisharp(projectLocation, callback) {
