@@ -106,7 +106,7 @@ maxerr: 50, node: true */
 
             var location = getOmnisharpLocation(),
                 isMono = process.platform !== 'win32',
-                args = ['-p', _port, '-s', projectLocation, '--HostPID', process.pid],
+                args = ['-p', _port, '-s', projectLocation, '--hostPID', process.pid],
                 executable;
 
             console.info(location);
