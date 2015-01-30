@@ -11,7 +11,8 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         DocumentManager = brackets.getModule('document/DocumentManager');
     
-    var isRunning;
+    var isRunning,
+        currentWidgets = [];
 
     function getCodeMirror() {
         var editor = EditorManager.getActiveEditor();
@@ -28,26 +29,34 @@ define(function (require, exports, module) {
             document = DocumentManager.getCurrentDocument(),
             dataToSend = {
                 filename: document.file._path,
-                line: member.Line + 1,
+                line: member.Line,
                 column: member.Column + 1
             };
         Omnisharp.makeRequest('findusages', dataToSend, function (err, data) {
             if (err !== null) {
                 console.error(err);
             } else {
-                codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + getLeadingWhitespace(member.Line) + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
+                currentWidgets.push(codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + getLeadingWhitespace(member.Line) + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
                     coverGutter: false,
                     noHScroll: true
-                });
+                }));
             }
         });
     }
 
+    function clearWidgets(){
+        currentWidgets.map(function(widget, idx){
+            widget.clear();
+        });
+        currentWidgets = [];
+    }
+    
     function load() {
         var document = DocumentManager.getCurrentDocument(),
             dataToSend = {
                 filename: document.file._path
             };
+        clearWidgets();
         Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
             if (err !== null) {
                 console.error(err);
