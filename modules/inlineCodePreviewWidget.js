@@ -45,21 +45,22 @@ define(function (require, exports, module) {
 
     InlineCodePreviewWidget.prototype.adjustHeight = function () {
         this.lineHeight = +($(this.previewPane).css('line-height').replace('px', ''));
+        if (this.lineHeight < 8) {
+            this.lineHeight = 8;
+        }
         this.setHeight(this, this.lineHeight * 10 + 'px');
     };
 
     InlineCodePreviewWidget.prototype.setInlineContent = function () {
-        var self = this;
-        console.log("codeAction exectuted");
-
-        var sidebar = $(self.$htmlContent);
-        var $list = $('ul', sidebar);
-
+        var self = this,
+            sidebar = $(self.$htmlContent),
+            $list = $('ul', sidebar);
         $list.append(
             $('<li>')
                 .attr('class', 'section-header')
                 .append(($('<span>').text('Code Actions')))
         );
+        this.$list = $list;
     };
 
     InlineCodePreviewWidget.prototype.createListItem = function (action, index) {
@@ -95,6 +96,7 @@ define(function (require, exports, module) {
     InlineCodePreviewWidget.prototype.previewCode = function (item) {
 
     };
+    
     InlineCodePreviewWidget.prototype.setHeight = function (inlineWidget, height, ensureVisible) {
         var node = inlineWidget.htmlContent,
             oldHeight = (node && $(node).height()) || 0,

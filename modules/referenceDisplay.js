@@ -26,6 +26,43 @@ define(function (require, exports, module) {
         return temp.match(/^[\s]*/)[0];
     }
     
+    function setWidgetContent(widget) {
+        //this overrides the prototype method of the widget loading
+        var sidebar = $(widget.$htmlContent),
+            $list = $('ul', sidebar),
+            document = DocumentManager.getCurrentDocument(),
+            dataToSend = {
+                filename: document.file._path,
+                line: widget.member.Line,
+                column: widget.member.Column + 1
+            };
+        
+        $list.empty();
+        $list.append($('<li>')
+                        .attr('class', 'section-header')
+                        .append(($('<span>').text('References'))));
+        
+        Omnisharp.makeRequest('findusages', dataToSend, function (err, data) {
+            if (err !== null) {
+                console.error(err);
+            } else {
+                
+                /*
+                take each reference->group by file name->order by line num-> display linenum : line
+                -> bolden reference identifier 
+                (maybe not bolden.. requires the server to return the identifier where possible
+                
+                Path/To/Folder/File.cs
+                    12 : this._CallMethod_();
+                */
+                data.QuickFixes.map(function (reference, idx) {
+                    $list.append($('<li>').append(($('<span>').text(JSON.stringify(reference.Text)))));
+                });
+            }
+        });
+        return function () {};
+    }
+    
     function onAnchorClick(e) {
         var editor = EditorManager.getActiveEditor(),
             widget = new InlineCodePreviewWidget.InlineCodePreivewWidget(EditorManager.getActiveEditor()),
@@ -33,9 +70,9 @@ define(function (require, exports, module) {
             member = anchor.data('omnisharp-file-member');
         
         widget.load(EditorManager.getActiveEditor());
-        
-        alert(JSON.stringify(anchor.data('omnisharp-file-member')));
-        editor.addInlineWidget(editor.getCursorPos(), widget);
+        widget.member = member;
+        widget.setInlineContent = setWidgetContent(widget);
+        editor.addInlineWidget({line : member.Line - 2, ch : member.Column}, widget);
         widget.onAdded();
     }
     
@@ -50,7 +87,7 @@ define(function (require, exports, module) {
         }
         finalElement = $('<pre class="omnisharp-reference-display">' + whitespace + '<small><a>' + text + '</a></small></pre>').get(0);
         anchor = $("a", finalElement);
-        anchor.data('omnisharp-file-member', data);
+        anchor.data('omnisharp-file-member', member);
         anchor.click(onAnchorClick);
         return finalElement;
     }
