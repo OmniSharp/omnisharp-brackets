@@ -9,9 +9,11 @@ define(function (require, exports, module) {
         CodeMirror = brackets.getModule('thirdparty/CodeMirror2/lib/codemirror'),
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp'),
-        InlineCodePreviewWidget = require('modules/inlineCodePreviewWidget'),
+        InlineCodePreviewWidget = require('modules/omnisharpInlineWidget'),
         DocumentManager = brackets.getModule('document/DocumentManager');
 
+    var findReferencesTemplate = require("text!htmlContent/omnisharp-findreferences-template.html");
+  
     var isRunning,
         isLoading,
         currentWidgets = [];
@@ -26,50 +28,71 @@ define(function (require, exports, module) {
         return temp.match(/^[\s]*/)[0];
     }
     
+    function createWidgetItem(widget, reference) {
+        var listItem = $('<li>')
+            .append($('<span>')
+                    .text('L' + reference.Line + ': ')
+                    .append($('<a>').text(reference.Text))
+                   )
+            .data('reference', reference);
+
+        listItem.mousedown(function () {
+        });
+
+        listItem.dblclick(function () {
+            widget.runCodeAction($(this).data('index'));
+        });
+        
+        return listItem;
+    }
+
     function setWidgetContent(widget) {
         //this overrides the prototype method of the widget loading
-        var sidebar = $(widget.$htmlContent),
-            $list = $('ul', sidebar),
+        var content = $(widget.$htmlContent),
+            $list = $('ul', content),
             document = DocumentManager.getCurrentDocument(),
             dataToSend = {
                 filename: document.file._path,
                 line: widget.member.Line,
                 column: widget.member.Column + 1
-            };
-        
-        $list.empty();
-        $list.append($('<li>')
-                        .attr('class', 'section-header')
-                        .append(($('<span>').text('References'))));
+            },
+            filename;
         
         Omnisharp.makeRequest('findusages', dataToSend, function (err, data) {
             if (err !== null) {
                 console.error(err);
             } else {
-                
-                /*
-                take each reference->group by file name->order by line num-> display linenum : line
-                -> bolden reference identifier 
-                (maybe not bolden.. requires the server to return the identifier where possible
-                
-                Path/To/Folder/File.cs
-                    12 : this._CallMethod_();
-                */
+                var referencesByFileName = [];
                 data.QuickFixes.map(function (reference, idx) {
-                    $list.append($('<li>').append(($('<span>').text(JSON.stringify(reference.Text)))));
+                    if (!referencesByFileName[reference.FileName]) {
+                        referencesByFileName[reference.FileName] = [];
+                    }
+                    referencesByFileName[reference.FileName].push(reference);
+                });
+                Object.keys(referencesByFileName).map(function (filename, idx) {
+                    var references = referencesByFileName[filename],
+                        header = $('<li>')
+                            .attr('class', 'filename')
+                            .append($('<span>').text(filename.replace(/^.*[\\\/]/, '')))
+                            .append($('<ul>'));
+                    $list.append(header);
+                    references.map(function (reference, fnidx) {
+                        $('ul', header).append(createWidgetItem(widget, reference));
+                    });
                 });
             }
         });
+    
         return function () {};
     }
     
     function onAnchorClick(e) {
         var editor = EditorManager.getActiveEditor(),
-            widget = new InlineCodePreviewWidget.InlineCodePreivewWidget(EditorManager.getActiveEditor()),
+            widget = new InlineCodePreviewWidget.OmnisharpInlineWidget(EditorManager.getActiveEditor()),
             anchor = $(e.currentTarget),
             member = anchor.data('omnisharp-file-member');
         
-        widget.load(EditorManager.getActiveEditor());
+        widget.load(EditorManager.getActiveEditor(), $(findReferencesTemplate));
         widget.member = member;
         widget.setInlineContent = setWidgetContent(widget);
         editor.addInlineWidget({line : member.Line - 2, ch : member.Column}, widget);
