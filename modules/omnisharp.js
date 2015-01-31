@@ -45,17 +45,20 @@ define(function (require, exports, module) {
     function onOmnisharpError(data) {
         console.error(data);
         isRunning = false;
+
         $(exports).triggerHandler('omnisharpError');
     }
 
     function onOmnisharpQuit() {
         console.info('Omnisharp has quit');
         isRunning = false;
+
         $(exports).triggerHandler('omnisharpQuit');
     }
 
     function onOmnisharpReady() {
         isRunning = true;
+
         $(exports).triggerHandler('omnisharpReady');
     }
 
@@ -79,7 +82,7 @@ define(function (require, exports, module) {
         }
     }
 
-    function beforeAppClose() {
+    function kill() {
         Omnisharp.exec('stopOmnisharp');
     }
 
@@ -89,7 +92,9 @@ define(function (require, exports, module) {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpStarting', onOmnisharpStarting);
         $(EditorManager).on('activeEditorChange', onActiveEditorChange);
-        $(ProjectManager).on("beforeAppClose", beforeAppClose);
+        $(ProjectManager).on('beforeAppClose', kill);
+        $(ProjectManager).on('projectClose', kill);
+        $(ProjectManager).on('projectOpen', kill);
     }
 
     exports.makeRequest = makeRequest;

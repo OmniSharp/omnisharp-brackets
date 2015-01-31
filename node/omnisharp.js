@@ -8,7 +8,9 @@ maxerr: 50, node: true */
     var path = require('path'),
         request = require('request'),
         spawn = require('child_process').spawn,
-        net = require('net');
+        exec = require('child_process').exec,
+        net = require('net'),
+        psTree = require('ps-tree');
 
     var _domainName = 'omnisharp-brackets',
         _omnisharpProcess,
@@ -31,6 +33,34 @@ maxerr: 50, node: true */
         });
 
         server.listen(0, '127.0.0.1');
+    }
+
+    function reallyKillIt(pid) {
+        if (process.platform === 'win32') {
+            exec('taskkill /PID ' + pid + ' /T /F');
+            return;
+        }
+
+        var signal = 'SIGKILL',
+            killTree = true;
+
+        if (killTree) {
+            psTree(pid, function (err, children) {
+                [pid].concat(
+                    children.map(function (p) {
+                        return p.PID;
+                    })
+                ).forEach(function (tpid) {
+                    try {
+                        process.kill(tpid, signal);
+                    } catch (ignore) { }
+                });
+            });
+        } else {
+            try {
+                process.kill(pid, signal);
+            } catch (ignore) { }
+        }
     }
 
     function checkReady(checkStatusCount) {
@@ -80,7 +110,7 @@ maxerr: 50, node: true */
                 executable;
 
             console.info(location);
-            
+
             if (isMono && path.extname(location) === '.exe') {
                 executable = 'mono';
                 args.unshift(location);
@@ -118,7 +148,10 @@ maxerr: 50, node: true */
         if (_omnisharpProcess !== null) {
             console.info('Killing Omnisharp');
 
-            _omnisharpProcess.kill('SIGKILL');
+            _omnisharpProcess.stdout.pause();
+            _omnisharpProcess.stderr.pause();
+
+            reallyKillIt(_omnisharpProcess.pid);
             _omnisharpProcess = null;
         }
     }
