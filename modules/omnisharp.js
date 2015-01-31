@@ -16,6 +16,8 @@ define(function (require, exports, module) {
         if (isRunning) {
             return;
         }
+        
+        isRunning = true;
 
         var projectPath = ProjectManager.getInitialProjectPath();
 
