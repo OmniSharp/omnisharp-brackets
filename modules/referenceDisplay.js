@@ -9,10 +9,18 @@ define(function (require, exports, module) {
         CodeMirror = brackets.getModule('thirdparty/CodeMirror2/lib/codemirror'),
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp'),
+        InlineCodePreviewWidget = require('modules/omnisharpInlineWidget'),
+        CommandManager = brackets.getModule('command/CommandManager'),
+        FileUtils = brackets.getModule('file/FileUtils'),
+        Commands = brackets.getModule('command/Commands'),
         DocumentManager = brackets.getModule('document/DocumentManager');
-    
+
+    var findReferencesTemplate = require("text!htmlContent/omnisharp-findreferences-template.html");
+
     var isRunning,
-        currentWidgets = [];
+        isLoading,
+        referenceWidgets = [],
+        lineWidgets = [];
 
     function getCodeMirror() {
         var editor = EditorManager.getActiveEditor();
@@ -22,6 +30,108 @@ define(function (require, exports, module) {
     function getLeadingWhitespace(line) {
         var temp = DocumentManager.getCurrentDocument().getLine(line);
         return temp.match(/^[\s]*/)[0];
+    }
+
+    function createWidgetItem(widget, reference) {
+        var listItem = $('<li>')
+                .append($('<span>')
+                    .text('L' + reference.Line + ': ')
+                    .append($('<a>').text(reference.Text))
+                        )
+                .data('reference', reference);
+
+        listItem.mousedown(function () {
+            var unixPath = FileUtils.convertWindowsPathToUnixPath(reference.FileName);
+            CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, {
+                fullPath: unixPath,
+                paneId: 'first-pane'
+            }).done(function () {
+                var editor = EditorManager.getActiveEditor();
+                editor.setCursorPos(reference.Line - 1, reference.Column - 1, true);
+            });
+        });
+
+        listItem.dblclick(function () {
+        });
+
+        return listItem;
+    }
+
+    function setWidgetContent(widget) {
+        //this overrides the prototype method of the widget loading
+        var content = $(widget.$htmlContent),
+            $list = $('ul', content),
+            document = DocumentManager.getCurrentDocument(),
+            dataToSend = {
+                filename: document.file._path,
+                line: widget.member.Line,
+                column: widget.member.Column + 1
+            },
+            filename;
+
+        Omnisharp.makeRequest('findusages', dataToSend, function (err, data) {
+            if (err !== null) {
+                console.error(err);
+            } else {
+                var referencesByFileName = [];
+                data.QuickFixes.map(function (reference, idx) {
+                    if (!referencesByFileName[reference.FileName]) {
+                        referencesByFileName[reference.FileName] = [];
+                    }
+                    referencesByFileName[reference.FileName].push(reference);
+                });
+                Object.keys(referencesByFileName).map(function (filename, idx) {
+                    var references = referencesByFileName[filename],
+                        header = $('<li>')
+                            .attr('class', 'filename')
+                            .append($('<span>').text(filename.replace(/^.*[\\\/]/, '')))
+                            .append($('<ul>'));
+                    $list.append(header);
+                    references.map(function (reference, fnidx) {
+                        $('ul', header).append(createWidgetItem(widget, reference));
+                    });
+                });
+                widget.adjustHeight();
+            }
+        });
+
+        return function () {};
+    }
+
+    function onAnchorClick(e) {
+        var editor = EditorManager.getActiveEditor(),
+            widget = new InlineCodePreviewWidget.OmnisharpInlineWidget(EditorManager.getActiveEditor()),
+            anchor = $(e.currentTarget),
+            member = anchor.data('omnisharp-file-member');
+
+        widget.load(EditorManager.getActiveEditor(), $(findReferencesTemplate));
+        widget.member = member;
+        widget.setInlineContent = setWidgetContent(widget);
+        widget.adjustHeight = function () {
+            widget.setHeight(widget, $(".omnisharp-references", widget.$htmlContent).height() + 'px');
+        };
+        editor.addInlineWidget({
+            line: member.Line - 2,
+            ch: member.Column
+        }, widget);
+        widget.onAdded();
+        referenceWidgets.push(widget);
+    }
+
+    function createElement(data, member) {
+        var text = data.QuickFixes.length + ' reference',
+            whitespace = getLeadingWhitespace(member.Line - 1),
+            anchor,
+            finalElement;
+
+        if (data.QuickFixes.length !== 1) {
+            text += 's';
+        }
+        finalElement = $('<pre class="omnisharp-reference-display">' + whitespace + '<small><a>' + text + '</a></small></pre>').get(0);
+        anchor = $("a", finalElement);
+        anchor.data('omnisharp-file-member', member);
+        anchor.click(onAnchorClick);
+        return finalElement;
     }
 
     function processMember(member) {
@@ -36,7 +146,7 @@ define(function (require, exports, module) {
             if (err !== null) {
                 console.error(err);
             } else {
-                currentWidgets.push(codeMirror.addLineWidget(member.Line - 2, $('<pre class="omnisharp-reference-display">' + getLeadingWhitespace(member.Line) + '<i><small><a>' + data.QuickFixes.length + ' references</a></small></i></pre>').get(0), {
+                lineWidgets.push(codeMirror.addLineWidget(member.Line - 2, createElement(data, member), {
                     coverGutter: false,
                     noHScroll: true
                 }));
@@ -44,28 +154,40 @@ define(function (require, exports, module) {
         });
     }
 
-    function clearWidgets(){
-        currentWidgets.map(function(widget, idx){
+    function clearWidgets() {
+        lineWidgets.map(function (widget, idx) {
             widget.clear();
         });
-        currentWidgets = [];
-    }
-    
-    function load() {
-        var document = DocumentManager.getCurrentDocument(),
-            dataToSend = {
-                filename: document.file._path
-            };
-        clearWidgets();
-        Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
-            if (err !== null) {
-                console.error(err);
-            } else {
-                data.map(function (member) {
-                    return processMember(member);
-                });
-            }
+        referenceWidgets.map(function (widget, idx) {
+            widget.close();
         });
+        lineWidgets = [];
+        referenceWidgets = [];
+    }
+
+    function load() {
+        if (!isLoading) {
+            try {
+                isLoading = true;
+                var document = DocumentManager.getCurrentDocument(),
+                    dataToSend = {
+                        filename: document.file._path
+                    };
+                clearWidgets();
+                Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
+                    if (err !== null) {
+                        console.error(err);
+                    } else {
+                        data.map(function (member) {
+                            return processMember(member);
+                        });
+                    }
+                });
+                isLoading = false;
+            } catch (ex) {
+                isLoading = false;
+            }
+        }
     }
 
     function onOmnisharpReady() {
@@ -81,9 +203,9 @@ define(function (require, exports, module) {
         $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
         $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
         $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
-
+        isLoading = false;
         isRunning = false;
-        EditorManager.on("activeEditorChange", function (a,b,c) {
+        EditorManager.on("activeEditorChange", function (a, b, c) {
             if (isRunning) {
                 load();
             }
