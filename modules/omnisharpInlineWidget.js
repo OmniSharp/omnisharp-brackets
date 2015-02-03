@@ -40,7 +40,7 @@ define(function (require, exports, module) {
     
     OmnisharpInlineWidget.prototype.setHeight = function (inlineWidget, height, ensureVisible) {
         //taken from the brackets source :(
-        var node = inlineWidget.htmlContent,
+        var node = this.$htmlContent,
             oldHeight = (node && $(node).height()) || 0,
             changed = (oldHeight !== height),
             isAttached = inlineWidget.info !== undefined;
