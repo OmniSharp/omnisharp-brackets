@@ -52,7 +52,6 @@ define(function (require, exports, module) {
         });
 
         listItem.dblclick(function () {
-            widget.runCodeAction($(this).data('index'));
         });
 
         return listItem;
