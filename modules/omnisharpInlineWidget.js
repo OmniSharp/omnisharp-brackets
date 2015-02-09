@@ -9,12 +9,12 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         Helpers = require('modules/helpers'),
         InlineWidget = brackets.getModule("editor/InlineWidget").InlineWidget;
-    
+
     function OmnisharpInlineWidget(hostEditor) {
         InlineWidget.call(this);
         this.hostEditor = hostEditor;
     }
-    
+
     OmnisharpInlineWidget.prototype = Object.create(InlineWidget.prototype);
     OmnisharpInlineWidget.prototype.constructor = OmnisharpInlineWidget;
     OmnisharpInlineWidget.prototype.parentClass = InlineWidget.prototype;
@@ -31,14 +31,16 @@ define(function (require, exports, module) {
     };
 
     OmnisharpInlineWidget.prototype.adjustHeight = function () {
+
         //default to 300, override this to set your own
         this.setHeight(this, '300px');
     };
 
     OmnisharpInlineWidget.prototype.setInlineContent = function () {
     };
-    
+
     OmnisharpInlineWidget.prototype.setHeight = function (inlineWidget, height, ensureVisible) {
+
         //taken from the brackets source :(
         var node = this.$htmlContent,
             oldHeight = (node && $(node).height()) || 0,
@@ -46,12 +48,13 @@ define(function (require, exports, module) {
             isAttached = inlineWidget.info !== undefined;
 
         function updateHeight() {
+
             // Notify CodeMirror for the height change.
             if (isAttached) {
                 inlineWidget.info.changed();
             }
         }
-        
+
         function setOuterHeight() {
             function finishAnimating(e) {
                 if (e.target === node) {
@@ -59,7 +62,9 @@ define(function (require, exports, module) {
                     $(node).off("webkitTransitionEnd", finishAnimating);
                 }
             }
+
             $(node).height(height);
+
             if ($(node).hasClass("animating")) {
                 $(node).on("webkitTransitionEnd", finishAnimating);
             } else {
@@ -70,6 +75,7 @@ define(function (require, exports, module) {
         // Make sure we set an explicit height on the widget, so children can use things like
         // min-height if they want.
         if (changed || !node.style.height) {
+
             // If we're animating, set the wrapper's height on a timeout so the layout is finished before we animate.
             if ($(node).hasClass("animating")) {
                 window.setTimeout(setOuterHeight, 0);
@@ -91,6 +97,6 @@ define(function (require, exports, module) {
             });
         }
     };
-    
+
     exports.OmnisharpInlineWidget = OmnisharpInlineWidget;
 });

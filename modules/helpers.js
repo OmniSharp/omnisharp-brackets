@@ -6,8 +6,10 @@ define(function (require, exports, module) {
 
     var EditorManager = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule('document/DocumentManager'),
-        Omnisharp = require('modules/omnisharp');
-    
+        Omnisharp = require('modules/omnisharp'),
+        mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp');
+
+
     function isCSharp() {
         var document = DocumentManager.getCurrentDocument();
         if (document === null) {
@@ -17,7 +19,7 @@ define(function (require, exports, module) {
         var language = document.getLanguage();
         return language.getId() === 'csharp';
     }
-    
+
     function buildRequest() {
         var document = DocumentManager.getCurrentDocument();
         var filename = document.file._path;
@@ -33,7 +35,7 @@ define(function (require, exports, module) {
             filename: filename
         };
     }
-    
+
     function makeRequestAndRefreshDocument(service) {
         var document = DocumentManager.getCurrentDocument();
         var req = buildRequest();
@@ -46,8 +48,31 @@ define(function (require, exports, module) {
             document.setText(res.Buffer || res.Text);
         });
     }
-    
+
+    function highlightCode(line) {
+        var stream = new CodeMirror.StringStream(line),
+            result,
+            node = document.createElement('span'),
+            state = CodeMirror.startState(mode);
+
+        while (!stream.eol()) {
+            var style = mode.token(stream, state);
+
+            if (style) {
+                var sp = node.appendChild(document.createElement('span'));
+                sp.className = 'cm-' + style.replace(/ +/g, ' cm-');
+                sp.appendChild(document.createTextNode(stream.current()));
+            } else {
+                node.appendChild(document.createTextNode(stream.current()));
+            }
+            stream.start = stream.pos;
+        }
+
+        return node.innerHTML;
+    }
+
     exports.isCSharp = isCSharp;
+    exports.highlightCode = highlightCode;
     exports.buildRequest = buildRequest;
     exports.makeRequestAndRefreshDocument = makeRequestAndRefreshDocument;
 });

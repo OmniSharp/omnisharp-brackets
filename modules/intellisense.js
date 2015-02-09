@@ -40,28 +40,6 @@ define(function (require, exports, module) {
         }
     }
 
-    function highlightLine(line) {
-        var stream = new CodeMirror.StringStream(line),
-            result,
-            node = document.createElement('span'),
-            state = CodeMirror.startState(mode);
-
-        while (!stream.eol()) {
-            var style = mode.token(stream, state);
-
-            if (style) {
-                var sp = node.appendChild(document.createElement('span'));
-                sp.className = 'cm-' + style.replace(/ +/g, ' cm-');
-                sp.appendChild(document.createTextNode(stream.current()));
-            } else {
-                node.appendChild(document.createTextNode(stream.current()));
-            }
-            stream.start = stream.pos;
-        }
-
-        return node.innerHTML;
-    }
-
     function getCursor() {
         var editor = EditorManager.getActiveEditor();
         return editor.getCursorPos();
@@ -77,11 +55,11 @@ define(function (require, exports, module) {
         if (token.string === '.') {
             return '';
         }
-        return token.string.replace(/\s+$/,""); // rtrim
+        return token.string.replace(/\s+$/, '');
     }
 
     function getCompletion(completion) {
-        var completionHtml = '<span class="intellisense-icon ' + completion.Kind.toLowerCase() + '"></span><span class="force-syntax-highlighting intellisense" style="font-family:' + font + ';font-size: 11px;" data-completiontext="' + completion.CompletionText + '" >' + highlightLine(completion.DisplayText) + '</span>';
+        var completionHtml = '<span class="intellisense-icon ' + completion.Kind.toLowerCase() + '"></span><span class="force-syntax-highlighting intellisense" style="font-family:' + font + ';font-size: 11px;" data-completiontext="' + completion.CompletionText + '" >' + Helpers.highlightCode(completion.DisplayText) + '</span>';
 
         return completionHtml + '</span>';
     }
@@ -158,20 +136,12 @@ define(function (require, exports, module) {
                 line: cursor.line,
                 ch: cursor.ch + adjustment
             };
-//
-//            // if (data.issnippet) {
-//            //     var snippet = prepSnippet(completionText);
-//            //     Snippets.install({ from: start, to: end }, snippet);
-//            // } else {
+
             editor._codeMirror.replaceRange(completionText, start, end);
-//            // }
 
             return false;
         },
-        insertHintOnTab: true,
-        // https://github.com/dotnet/roslyn/blob/master/src/Features/CSharp/Completion/CompletionProviders/CompletionUtilities.cs#L33
-        insertHintOnOther: [190, 219, 186]
-
+        insertHintOnTab: true
     };
 
     function onOmnisharpReady() {
