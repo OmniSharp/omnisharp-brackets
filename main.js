@@ -16,7 +16,8 @@ define(function (require, exports, module) {
         OmniCommands = require('modules/omniCommands'),
         OmniHandlers = require('modules/omniHandlers'),
         ReferenceDisplay = require('modules/referenceDisplay'),
-        Preferences = require('modules/preferences');
+        Preferences = require('modules/preferences'),
+        LanguageManager = brackets.getModule("language/LanguageManager");
 
     function enable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
@@ -47,6 +48,9 @@ define(function (require, exports, module) {
 
     AppInit.appReady(function () {
         Preferences.loadPreferences(function () {
+            var csharpLanguage = LanguageManager.getLanguage("csharp");
+            csharpLanguage.addFileExtension("csx");
+            
             OmniHandlers.init();
             Omnisharp.init();
             ContextMenu.init();
