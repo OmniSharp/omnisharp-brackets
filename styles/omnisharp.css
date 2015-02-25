@@ -94,3 +94,20 @@ span.intellisense {
     margin-left: 13px;
     vertical-align: middle;
 }
+
+omnisharp-references .inline-editor-header {
+    line-height: 30px;
+}
+ 
+.omnisharp-references .references {
+    padding-bottom: 5px;
+}
+
+.omnisharp-references .references ul li {
+    list-style-type: none;
+    text-indent: 0;
+}
+
+.omnisharp-reference-display a {
+    cursor: pointer;
+}

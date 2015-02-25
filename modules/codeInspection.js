@@ -36,9 +36,7 @@ define(function (require, exports, module) {
     }
 
     function processProblem(problem) {
-        //if (problem.LogLevel === 'Error' || problem.LogLevel === 'Warning') {
-            setMark(problem, problem.LogLevel.toLowerCase());
-        //}
+        setMark(problem, problem.LogLevel.toLowerCase());
 
         return {
             pos: { line: problem.Line - 1, ch: problem.Column - 1},

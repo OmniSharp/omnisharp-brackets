@@ -33,11 +33,12 @@ define(function (require, exports, module) {
     }
 
     function createWidgetItem(widget, reference) {
-        var listItem = $('<li>')
+        var highlightedCode = Helpers.highlightCode(reference.Text),
+            listItem = $('<li>')
                 .append($('<span>')
                     .text('L' + reference.Line + ': ')
-                    .append($('<a>').text(reference.Text))
-                        )
+                    .append($('<a style="cursor: pointer;">').append($('<span>' + highlightedCode + '</span>')))
+                )
                 .data('reference', reference);
 
         listItem.mousedown(function () {
@@ -51,13 +52,11 @@ define(function (require, exports, module) {
             });
         });
 
-        listItem.dblclick(function () {
-        });
-
         return listItem;
     }
 
     function setWidgetContent(widget) {
+
         //this overrides the prototype method of the widget loading
         var content = $(widget.$htmlContent),
             $list = $('ul', content),
@@ -74,23 +73,29 @@ define(function (require, exports, module) {
                 console.error(err);
             } else {
                 var referencesByFileName = [];
+
                 data.QuickFixes.map(function (reference, idx) {
                     if (!referencesByFileName[reference.FileName]) {
                         referencesByFileName[reference.FileName] = [];
                     }
+
                     referencesByFileName[reference.FileName].push(reference);
                 });
+
                 Object.keys(referencesByFileName).map(function (filename, idx) {
                     var references = referencesByFileName[filename],
                         header = $('<li>')
                             .attr('class', 'filename')
                             .append($('<span>').text(filename.replace(/^.*[\\\/]/, '')))
                             .append($('<ul>'));
+
                     $list.append(header);
+
                     references.map(function (reference, fnidx) {
                         $('ul', header).append(createWidgetItem(widget, reference));
                     });
                 });
+
                 widget.adjustHeight();
             }
         });
@@ -102,19 +107,29 @@ define(function (require, exports, module) {
         var editor = EditorManager.getActiveEditor(),
             widget = new InlineCodePreviewWidget.OmnisharpInlineWidget(EditorManager.getActiveEditor()),
             anchor = $(e.currentTarget),
-            member = anchor.data('omnisharp-file-member');
+            member = anchor.data('omnisharp-file-member'),
+            currentWidget = anchor.data('omnisharp-reference-widget');
 
+        if (currentWidget !== undefined) {
+            currentWidget.close();
+            anchor.removeData('omnisharp-reference-widget');
+            return;
+        }
+        
         widget.load(EditorManager.getActiveEditor(), $(findReferencesTemplate));
         widget.member = member;
         widget.setInlineContent = setWidgetContent(widget);
         widget.adjustHeight = function () {
             widget.setHeight(widget, $(".omnisharp-references", widget.$htmlContent).height() + 'px');
         };
+
         editor.addInlineWidget({
             line: member.Line - 2,
             ch: member.Column
         }, widget);
+
         widget.onAdded();
+        anchor.data('omnisharp-reference-widget', widget);
         referenceWidgets.push(widget);
     }
 
@@ -127,10 +142,12 @@ define(function (require, exports, module) {
         if (data.QuickFixes.length !== 1) {
             text += 's';
         }
+
         finalElement = $('<pre class="omnisharp-reference-display">' + whitespace + '<small><a>' + text + '</a></small></pre>').get(0);
         anchor = $("a", finalElement);
         anchor.data('omnisharp-file-member', member);
         anchor.click(onAnchorClick);
+
         return finalElement;
     }
 
@@ -142,6 +159,7 @@ define(function (require, exports, module) {
                 line: member.Line,
                 column: member.Column + 1
             };
+
         Omnisharp.makeRequest('findusages', dataToSend, function (err, data) {
             if (err !== null) {
                 console.error(err);
@@ -173,7 +191,9 @@ define(function (require, exports, module) {
                     dataToSend = {
                         filename: document.file._path
                     };
+
                 clearWidgets();
+
                 Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
                     if (err !== null) {
                         console.error(err);
@@ -183,6 +203,7 @@ define(function (require, exports, module) {
                         });
                     }
                 });
+
                 isLoading = false;
             } catch (ex) {
                 isLoading = false;
@@ -205,6 +226,7 @@ define(function (require, exports, module) {
         $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
         isLoading = false;
         isRunning = false;
+
         EditorManager.on("activeEditorChange", function (a, b, c) {
             if (isRunning) {
                 load();

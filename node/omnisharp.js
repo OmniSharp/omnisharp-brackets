@@ -1,6 +1,6 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, node: true */
-/*global */
+/*global module, process */
 
 (function () {
     'use strict';
@@ -106,7 +106,7 @@ maxerr: 50, node: true */
 
             var location = getOmnisharpLocation(),
                 isMono = process.platform !== 'win32',
-                args = ['-p', _port, '-s', projectLocation],
+                args = ['-p', _port, '-s', projectLocation, '--hostPID', process.pid],
                 executable;
 
             console.info(location);
