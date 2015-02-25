@@ -12,4 +12,5 @@ define(function (require, exports, module) {
     exports.CMD_STOP_OMNISHARP = 'Stop Omnisharp';
     exports.CMD_FIX_CODE_ISSUE = 'Fix Code Issue';
     exports.CMD_OPEN_PREFERENCES = 'Open Preferences';
+    exports.CMD_RELOAD_REFERENCE_DISPLAY = 'Reload References Display';
 });

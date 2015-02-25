@@ -13,6 +13,7 @@ define(function (require, exports, module) {
         CommandManager = brackets.getModule('command/CommandManager'),
         FileUtils = brackets.getModule('file/FileUtils'),
         Commands = brackets.getModule('command/Commands'),
+        Preferences = require('modules/preferences'),
         DocumentManager = brackets.getModule('document/DocumentManager');
 
     var findReferencesTemplate = require("text!htmlContent/omnisharp-findreferences-template.html");
@@ -38,7 +39,7 @@ define(function (require, exports, module) {
                 .append($('<span>')
                     .text('L' + reference.Line + ': ')
                     .append($('<a style="cursor: pointer;">').append($('<span>' + highlightedCode + '</span>')))
-                )
+                    )
                 .data('reference', reference);
 
         listItem.mousedown(function () {
@@ -115,7 +116,7 @@ define(function (require, exports, module) {
             anchor.removeData('omnisharp-reference-widget');
             return;
         }
-        
+
         widget.load(EditorManager.getActiveEditor(), $(findReferencesTemplate));
         widget.member = member;
         widget.setInlineContent = setWidgetContent(widget);
@@ -184,29 +185,31 @@ define(function (require, exports, module) {
     }
 
     function load() {
-        if (!isLoading) {
-            try {
-                isLoading = true;
-                var document = DocumentManager.getCurrentDocument(),
-                    dataToSend = {
-                        filename: document.file._path
-                    };
+        if (Preferences.get().enableCodeLens) {
+            if (!isLoading) {
+                try {
+                    isLoading = true;
+                    var document = DocumentManager.getCurrentDocument(),
+                        dataToSend = {
+                            filename: document.file._path
+                        };
 
-                clearWidgets();
+                    clearWidgets();
 
-                Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
-                    if (err !== null) {
-                        console.error(err);
-                    } else {
-                        data.map(function (member) {
-                            return processMember(member);
-                        });
-                    }
-                });
+                    Omnisharp.makeRequest('currentfilemembersasflat', dataToSend, function (err, data) {
+                        if (err !== null) {
+                            console.error(err);
+                        } else {
+                            data.map(function (member) {
+                                return processMember(member);
+                            });
+                        }
+                    });
 
-                isLoading = false;
-            } catch (ex) {
-                isLoading = false;
+                    isLoading = false;
+                } catch (ex) {
+                    isLoading = false;
+                }
             }
         }
     }
@@ -234,4 +237,5 @@ define(function (require, exports, module) {
         });
     }
     exports.init = init;
+    exports.reload = load;
 });

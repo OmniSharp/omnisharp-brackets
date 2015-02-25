@@ -14,4 +14,5 @@ define(function (require, exports, module) {
     exports.STOP_OMNISHARP = packageString + 'stopOmnisharp';
     exports.FIX_CODE_ISSUE = packageString + 'fixCodeIssue';
     exports.OPEN_PREFERENCES = packageString + 'openPreferences';
+    exports.RELOAD_REFERENCE_DISPLAY = packageString + 'reloadReferenceDisplay';
 });

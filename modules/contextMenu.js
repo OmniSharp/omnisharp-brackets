@@ -17,12 +17,14 @@ define(function (require, exports, module) {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(true);
         CommandManager.get(OmniCommands.RENAME).setEnabled(true);
         CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(true);
+        CommandManager.get(OmniCommands.RELOAD_REFERENCE_DISPLAY).setEnabled(true);
     }
 
     function disable() {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(false);
         CommandManager.get(OmniCommands.RENAME).setEnabled(false);
         CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(false);
+        CommandManager.get(OmniCommands.RELOAD_REFERENCE_DISPLAY).setEnabled(false);
     }
 
     function beforeContextMenuOpen() {
@@ -30,10 +32,12 @@ define(function (require, exports, module) {
             contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION, Preferences.get().keyboardShortcuts.goToDefinition);
             contextMenu.addMenuItem(OmniCommands.RENAME, Preferences.get().keyboardShortcuts.rename);
             contextMenu.addMenuItem(OmniCommands.FIX_CODE_ISSUE, Preferences.get().keyboardShortcuts.fixCodeIssue);
+            contextMenu.addMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY, Preferences.get().keyboardShortcuts.reloadReferenceDisplay);
         } else {
             contextMenu.removeMenuItem(OmniCommands.GO_TO_DEFINITION);
             contextMenu.removeMenuItem(OmniCommands.RENAME);
             contextMenu.removeMenuItem(OmniCommands.FIX_CODE_ISSUE);
+            contextMenu.removeMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY);
         }
     }
 
