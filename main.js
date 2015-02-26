@@ -42,6 +42,7 @@ define(function (require, exports, module) {
         menu.addMenuDivider();
         menu.addMenuItem(OmniCommands.FIX_USINGS);
         menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT);
+        menu.addMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY);
 
         disable();
     }
