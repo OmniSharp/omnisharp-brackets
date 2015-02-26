@@ -1,13 +1,14 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, $, brackets, window, CodeMirror */
+/*global define, $, brackets, window */
 
 define(function (require, exports, module) {
     'use strict';
 
     var AppInit = brackets.getModule('utils/AppInit'),
         CodeHintManager = brackets.getModule('editor/CodeHintManager'),
-        EditorManager = brackets.getModule("editor/EditorManager"),
-        CodeHintList = brackets.getModule("editor/CodeHintList").CodeHintList,
+        EditorManager = brackets.getModule('editor/EditorManager'),
+        CodeHintList = brackets.getModule('editor/CodeHintList').CodeHintList,
+        CodeMirror = brackets.getModule('thirdparty/CodeMirror2/lib/codemirror'),
         Helpers = require('modules/helpers'),
         Omnisharp = require('modules/omnisharp'),
         Snippets = require('modules/snippets');
