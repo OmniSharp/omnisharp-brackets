@@ -44,7 +44,7 @@ define(function (require, exports, module) {
     function init() {
         disable();
 
-        $(contextMenu).on("beforeContextMenuOpen", beforeContextMenuOpen);
+        contextMenu.on("beforeContextMenuOpen", beforeContextMenuOpen);
 
         $(Omnisharp).on('omnisharpReady', enable);
         $(Omnisharp).on('omnisharpQuit', disable);

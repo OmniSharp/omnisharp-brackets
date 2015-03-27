@@ -67,23 +67,23 @@ span.intellisense-icon {
     margin-left: 13px;
 }
 
-span.method {
+span.Method {
     background-image: url('images/method.png');
 }
 
-span.keyword, span.local, span.field {
+span.Keyword, span.Local, span.Field {
     background-image: url('images/field.png');
 }
 
-span.property {
+span.Property {
     background-image: url('images/property.png');
 }
 
-span.namespace {
+span.Namespace {
     background-image: url('images/namespace.png');
 }
 
-span.namedtype {
+span.Namedtype {
     background-image: url('images/class.png');
 }
 
@@ -98,7 +98,7 @@ span.intellisense {
 omnisharp-references .inline-editor-header {
     line-height: 30px;
 }
- 
+
 .omnisharp-references .references {
     padding-bottom: 5px;
 }

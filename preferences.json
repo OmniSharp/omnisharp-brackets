@@ -5,5 +5,5 @@
         "fixCodeIssue": "ctrl-i",
         "reloadReferenceDisplay" : "alt-shift-R"
     },
-    "enableCodeLens" : true
+    "enableCodeLens" : false
 }

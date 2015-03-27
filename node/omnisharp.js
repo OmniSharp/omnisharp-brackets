@@ -17,7 +17,7 @@ maxerr: 50, node: true */
         _domainManager,
         _port,
         _checkStatusCount = 3,
-        _checkStatusTimeout = 10000;
+        _checkStatusTimeout = 3000;
 
     function findFreePort(callback) {
         var server = net.createServer(),
@@ -79,7 +79,6 @@ maxerr: 50, node: true */
             if (!err && res.statusCode === 200 && body === 'true') {
                 _domainManager.emitEvent(_domainName, 'omnisharpReady');
             } else {
-                console.info('checkready count: ' + checkStatusCount);
                 setTimeout(function () {
                     checkReady(checkStatusCount - 1);
                 }, _checkStatusTimeout);
@@ -109,8 +108,6 @@ maxerr: 50, node: true */
                 args = ['-p', _port, '-s', projectLocation, '--hostPID', process.pid],
                 executable;
 
-            console.info(location);
-
             if (isMono && path.extname(location) === '.exe') {
                 executable = 'mono';
                 args.unshift(location);
@@ -118,8 +115,7 @@ maxerr: 50, node: true */
                 executable = location;
             }
 
-            console.log(executable);
-            console.log(args);
+            console.info('\nexecutable: ' + executable + '\nargs: ' + args);
 
             _omnisharpProcess = spawn(executable, args);
 
@@ -146,7 +142,7 @@ maxerr: 50, node: true */
 
     function stopOmnisharp() {
         if (_omnisharpProcess !== null) {
-            console.info('Killing Omnisharp');
+            console.info('Stopping Omnisharp');
 
             _omnisharpProcess.stdout.pause();
             _omnisharpProcess.stderr.pause();
@@ -160,9 +156,6 @@ maxerr: 50, node: true */
         data.filename = path.resolve(data.filename);
 
         var url = 'http://localhost:' + _port + '/' + service;
-
-        console.info('making omnisharp request: ' + url);
-        console.info(data);
 
         request.post(url, {
             json: data

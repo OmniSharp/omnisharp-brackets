@@ -8,6 +8,7 @@ define(function (require, exports, module) {
         ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
         ProjectManager = brackets.getModule('project/ProjectManager'),
         EditorManager = brackets.getModule('editor/EditorManager'),
+        DocumentManager = brackets.getModule('document/DocumentManager'),
         Omnisharp = new NodeDomain('omnisharp-brackets', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
 
     var isRunning = false;
@@ -16,7 +17,7 @@ define(function (require, exports, module) {
         if (isRunning) {
             return;
         }
-        
+
         isRunning = true;
 
         var projectPath = ProjectManager.getInitialProjectPath();
@@ -42,6 +43,21 @@ define(function (require, exports, module) {
             .fail(function (err) {
                 callback(err, null);
             });
+    }
+
+    function makeRequestDeferred(service, request) {
+        var extendedRequest = buildRequest(request),
+            deferred = new $.Deferred();
+
+        Omnisharp.exec('callService', service, extendedRequest)
+            .done(function (res) {
+                deferred.resolve(res);
+            })
+            .fail(function (err) {
+                deferred.reject(err);
+            });
+
+        return deferred;
     }
 
     function onOmnisharpError(data) {
@@ -88,19 +104,42 @@ define(function (require, exports, module) {
         Omnisharp.exec('stopOmnisharp');
     }
 
+    function buildRequest(additionalParameters) {
+        var document = DocumentManager.getCurrentDocument(),
+            filename = document.file._path,
+            text = document.getText(),
+            editor = EditorManager.getActiveEditor(),
+            cursorPos = editor.getCursorPos(true, "start"),
+            request = {
+                line: cursorPos.line + 1,
+                column: cursorPos.ch + 1,
+                buffer: text,
+                filename: filename
+            };
+
+        $.extend(request, additionalParameters || {});
+
+        return request;
+    }
+
     function init() {
-        $(Omnisharp).on('omnisharpError', onOmnisharpError);
-        $(Omnisharp).on('omnisharpQuit', onOmnisharpQuit);
-        $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
-        $(Omnisharp).on('omnisharpStarting', onOmnisharpStarting);
-        $(EditorManager).on('activeEditorChange', onActiveEditorChange);
-        $(ProjectManager).on('beforeAppClose', kill);
-        $(ProjectManager).on('projectClose', kill);
-        $(ProjectManager).on('projectOpen', kill);
+        Omnisharp.on('omnisharpError', onOmnisharpError);
+        Omnisharp.on('omnisharpQuit', onOmnisharpQuit);
+        Omnisharp.on('omnisharpReady', onOmnisharpReady);
+        Omnisharp.on('omnisharpStarting', onOmnisharpStarting);
+        EditorManager.on('activeEditorChange', onActiveEditorChange);
+        ProjectManager.on('beforeAppClose', kill);
+        ProjectManager.on('projectClose', kill);
+        ProjectManager.on('projectOpen', kill);
     }
 
     exports.makeRequest = makeRequest;
     exports.start = start;
     exports.stop = stop;
     exports.init = init;
+
+    exports.autoComplete = function (request) {
+        return makeRequestDeferred('autocomplete', request);
+    };
+
 });
