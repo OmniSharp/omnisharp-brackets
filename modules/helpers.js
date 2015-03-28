@@ -9,7 +9,7 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp');
-        
+
     function isCSharp() {
         var document = DocumentManager.getCurrentDocument();
         if (document === null) {
@@ -32,9 +32,9 @@ define(function (require, exports, module) {
                 buffer: text,
                 filename: filename
             };
-            
+
         $.extend(request, additionalParameters || {});
-            
+
         return request;
     }
 

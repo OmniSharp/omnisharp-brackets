@@ -11,8 +11,7 @@ define(function (require, exports, module) {
         OmniStrings = require('modules/omniStrings'),
         RenameCommand = require('commands/rename'),
         goToDefinitionCommand = require('commands/goToDefinition'),
-        ReferenceDisplay = require('modules/referenceDisplay'),
-        Preferences = require('modules/preferences');
+        ReferenceDisplay = require('modules/referenceDisplay');
 
     function fixCodeIssue() {
         Helpers.makeRequestAndRefreshDocument('fixcodeissue');

@@ -1,9 +1,0 @@
-{
-    "keyboardShortcuts": {
-        "rename": "ctrl-r",
-        "goToDefinition": "ctrl-shift-g",
-        "fixCodeIssue": "ctrl-i",
-        "reloadReferenceDisplay" : "alt-shift-R"
-    },
-    "enableCodeLens" : false
-}

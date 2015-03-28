@@ -44,7 +44,7 @@ span.omnisharp-error {
 }
 
 span.omnisharp-warning {
-    background-image: url('images/wiggle_blue.png');
+    background-image: url('images/wiggle-blue.png');
     background-repeat: repeat-x;
     background-position: left bottom;
     padding-bottom: 2px;
@@ -52,7 +52,7 @@ span.omnisharp-warning {
 }
 
 span.omnisharp-hidden {
-    background-image: url('images/wiggle_blue.png');
+    background-image: url('images/wiggle-blue.png');
     background-repeat: repeat-x;
     background-position: left bottom;
     padding-bottom: 2px;

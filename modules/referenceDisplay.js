@@ -13,8 +13,9 @@ define(function (require, exports, module) {
         CommandManager = brackets.getModule('command/CommandManager'),
         FileUtils = brackets.getModule('file/FileUtils'),
         Commands = brackets.getModule('command/Commands'),
-        Preferences = require('modules/preferences'),
-        DocumentManager = brackets.getModule('document/DocumentManager');
+        DocumentManager = brackets.getModule('document/DocumentManager'),
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        prefs = PreferencesManager.getExtensionPrefs('omnisharp');
 
     var findReferencesTemplate = require("text!htmlContent/omnisharp-findreferences-template.html");
 
@@ -22,6 +23,8 @@ define(function (require, exports, module) {
         isLoading,
         referenceWidgets = [],
         lineWidgets = [];
+
+        prefs.definePreference('enableCodeLens', 'bool', true);
 
     function getCodeMirror() {
         var editor = EditorManager.getActiveEditor();
@@ -185,7 +188,7 @@ define(function (require, exports, module) {
     }
 
     function load() {
-        if (Preferences.get().enableCodeLens) {
+        if (prefs.get('enableCodeLens')) {
             if (!isLoading) {
                 try {
                     isLoading = true;

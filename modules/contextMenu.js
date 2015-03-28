@@ -9,35 +9,35 @@ define(function (require, exports, module) {
         CommandManager = brackets.getModule('command/CommandManager'),
         Helpers = require('modules/helpers'),
         OmniCommands = require('modules/omniCommands'),
-        Preferences = require('modules/preferences');
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        prefs = PreferencesManager.getExtensionPrefs('omnisharp');
 
     var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
+
+    prefs.definePreference('rename', 'string', 'alt-r');
+    prefs.definePreference('goToDefinition', 'string', 'alt-F12');
 
     function enable() {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(true);
         CommandManager.get(OmniCommands.RENAME).setEnabled(true);
         CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(true);
-        CommandManager.get(OmniCommands.RELOAD_REFERENCE_DISPLAY).setEnabled(true);
     }
 
     function disable() {
         CommandManager.get(OmniCommands.GO_TO_DEFINITION).setEnabled(false);
         CommandManager.get(OmniCommands.RENAME).setEnabled(false);
         CommandManager.get(OmniCommands.FIX_CODE_ISSUE).setEnabled(false);
-        CommandManager.get(OmniCommands.RELOAD_REFERENCE_DISPLAY).setEnabled(false);
     }
 
     function beforeContextMenuOpen() {
         if (Helpers.isCSharp()) {
-            contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION, Preferences.get().keyboardShortcuts.goToDefinition);
-            contextMenu.addMenuItem(OmniCommands.RENAME, Preferences.get().keyboardShortcuts.rename);
-            contextMenu.addMenuItem(OmniCommands.FIX_CODE_ISSUE, Preferences.get().keyboardShortcuts.fixCodeIssue);
-            contextMenu.addMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY, Preferences.get().keyboardShortcuts.reloadReferenceDisplay);
+            contextMenu.addMenuItem(OmniCommands.GO_TO_DEFINITION, prefs.get('goToDefinition'));
+            contextMenu.addMenuItem(OmniCommands.RENAME, prefs.get('rename'));
+            contextMenu.addMenuItem(OmniCommands.FIX_CODE_ISSUE);
         } else {
             contextMenu.removeMenuItem(OmniCommands.GO_TO_DEFINITION);
             contextMenu.removeMenuItem(OmniCommands.RENAME);
             contextMenu.removeMenuItem(OmniCommands.FIX_CODE_ISSUE);
-            contextMenu.removeMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY);
         }
     }
 
