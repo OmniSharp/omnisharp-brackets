@@ -60,6 +60,7 @@ define(function (require, exports, module) {
     }
 
     function getCompletion(completion) {
+        completion.HasReturnType = completion.ReturnType !== null;
         return Mustache.render(CompletionTemplate, completion);
     }
 
@@ -93,7 +94,7 @@ define(function (require, exports, module) {
                             hints: completions,
                             match: null,
                             selectInitial: true,
-                            handleWideResults: false
+                            handleWideResults: true
                         });
                     })
                     .fail(deferred.reject);
