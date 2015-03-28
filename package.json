@@ -1,12 +1,17 @@
 {
-    "name": "mat-mcloughlin.omnisharp",
-    "title": "Omnisharp",
-    "description": "Get some help when developing your C# apps",
-    "homepage": "https://github.com/OmniSharp/omnisharp-brackets",
-    "version": "0.0.2",
-    "author": "Mathew McLoughlin mathew.mcloughlin@gmail.com (http://mat-mcloughlin.net)",
-    "license": "MIT",
-    "engines": {
-        "brackets": ">=1.0"
-    }
+  "name": "mat-mcloughlin.omnisharp",
+  "title": "Omnisharp",
+  "description": "Get some help when developing your C# apps",
+  "homepage": "https://github.com/OmniSharp/omnisharp-brackets",
+  "version": "0.0.2",
+  "author": "Mathew McLoughlin mathew.mcloughlin@gmail.com (http://mat-mcloughlin.net)",
+  "license": "MIT",
+  "engines": {
+    "brackets": ">=1.0"
+  },
+  "dependencies": {
+    "omnisharp-server-roslyn-binaries": "^0.2.4",
+    "ps-tree": "0.0.3",
+    "request": "^2.54.0"
+  }
 }

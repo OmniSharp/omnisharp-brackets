@@ -6,11 +6,11 @@ maxerr: 50, node: true */
     'use strict';
 
     var path = require('path'),
-        request = require('request'),
+        request = require('../request'),
         spawn = require('child_process').spawn,
         exec = require('child_process').exec,
         net = require('net'),
-        psTree = require('ps-tree');
+        psTree = require('../ps-tree');
 
     var _domainName = 'omnisharp-brackets',
         _omnisharpProcess,
@@ -89,7 +89,7 @@ maxerr: 50, node: true */
 
     function getOmnisharpLocation() {
         var script = process.platform === 'win32' ? 'omnisharp.cmd' : 'omnisharp';
-        return process.env['OMNISHARP'] || path.join(__dirname, '..', 'omnisharp', script);
+        return process.env['OMNISHARP'] || path.join(__dirname, '..', 'node_modules', 'omnisharp-server-roslyn', 'lib', 'server', script);
     }
 
     function startOmnisharp(projectLocation, callback) {
