@@ -14,7 +14,7 @@ define(function (require, exports, module) {
 
     var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.EDITOR_MENU);
 
-    prefs.definePreference('rename', 'string', 'alt-r');
+    prefs.definePreference('rename', 'string', 'alt-F10');
     prefs.definePreference('goToDefinition', 'string', 'alt-F12');
 
     function enable() {

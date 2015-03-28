@@ -142,4 +142,7 @@ define(function (require, exports, module) {
         return makeRequestDeferred('autocomplete', request);
     };
 
+    exports.rename = function (request) {
+        return makeRequestDeferred('rename', request);
+    };
 });

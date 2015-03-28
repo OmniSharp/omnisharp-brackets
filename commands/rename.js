@@ -10,7 +10,8 @@ define(function (require, exports, module) {
         DefaultDialogs  = brackets.getModule("widgets/DefaultDialogs"),
         Omnisharp = require('modules/omnisharp'),
         Helpers = require('modules/helpers'),
-        FileUtils = brackets.getModule('file/FileUtils');
+        FileUtils = brackets.getModule('file/FileUtils'),
+        RenameTemplate = require("text!htmlContent/rename-template.html");
 
     var $input;
 
@@ -32,11 +33,13 @@ define(function (require, exports, module) {
         }
     }
 
-    function exec() {
+    exports.exec = function() {
+        var currentName = EditorManager.getCurrentFullEditor().getSelectedText();
+
         Dialogs.showModalDialog(
             DefaultDialogs.DIALOG_ID_SAVE_CLOSE,
             'Rename',
-            '<input style="margin-bottom:-18px;" type="text" id="renameInput" />',
+            Mustache.render(RenameTemplate, { currentName: currentName }),
             [
                 { className: 'primary', id: 'renameOk', text: 'Ok' },
                 { className: 'left', id: 'renameCancel', text: 'Cancel' }
@@ -45,8 +48,6 @@ define(function (require, exports, module) {
         ).done(onClose);
 
         $input = $('#renameInput');
-        var oldName = EditorManager.getCurrentFullEditor().getSelectedText();
-        $input.val(oldName);
         $input.focus();
         $input.select();
         $input.keyup(function (event) {
@@ -57,7 +58,5 @@ define(function (require, exports, module) {
                 );
             }
         });
-    }
-
-    exports.exec = exec;
+    };
 });
