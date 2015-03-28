@@ -1,10 +1,10 @@
 {
-  "name": "mat-mcloughlin.omnisharp",
-  "title": "Omnisharp",
-  "description": "Get some help when developing your C# apps",
+  "name": "omnisharp-brackets",
+  "title": "omnisharp-brackets",
+  "description": "C# IDE plugin for brackets.io.\nOmniSharp is a family of Open Source projects, each with one goal - To enable great .NET development in YOUR editor of choice.",
   "homepage": "https://github.com/OmniSharp/omnisharp-brackets",
-  "version": "0.0.2",
-  "author": "Mathew McLoughlin mathew.mcloughlin@gmail.com (http://mat-mcloughlin.net)",
+  "version": "0.0.3",
+  "author": "Mathew McLoughlin mathew.mcloughlin@gmail.com (http://omnisharp.net)",
   "license": "MIT",
   "engines": {
     "brackets": ">=1.0"
