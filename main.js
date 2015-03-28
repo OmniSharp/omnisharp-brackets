@@ -20,8 +20,8 @@ define(function (require, exports, module) {
         prefs = PreferencesManager.getExtensionPrefs('omnisharp'),
         LanguageManager = brackets.getModule("language/LanguageManager");
 
-        prefs.definePreference('startOmnisharp', 'string', 'ctrl-alt-o');
-        prefs.definePreference('stopOmnisharp', 'string', 'ctrl-shift-o');
+        prefs.definePreference('startOmnisharp', 'string', 'alt-o');
+        prefs.definePreference('stopOmnisharp', 'string', 'alt-shift-o');
         prefs.definePreference('fixUsings', 'string', 'ctrl-alt-u');
         prefs.definePreference('formatDocument', 'string', 'ctrl-alt-f');
 

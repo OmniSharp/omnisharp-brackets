@@ -10,7 +10,6 @@
     "brackets": ">=1.0"
   },
   "dependencies": {
-    "omnisharp-server-roslyn-binaries": "^0.2.4",
     "ps-tree": "0.0.3",
     "request": "^2.54.0"
   }
