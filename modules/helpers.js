@@ -7,8 +7,8 @@ define(function (require, exports, module) {
     var EditorManager = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule('document/DocumentManager'),
         Omnisharp = require('modules/omnisharp'),
+        CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp');
-
 
     function isCSharp() {
         var document = DocumentManager.getCurrentDocument();
@@ -20,20 +20,22 @@ define(function (require, exports, module) {
         return language.getId() === 'csharp';
     }
 
-    function buildRequest() {
-        var document = DocumentManager.getCurrentDocument();
-        var filename = document.file._path;
-        var text = document.getText();
+    function buildRequest(additionalParameters) {
+        var document = DocumentManager.getCurrentDocument(),
+            filename = document.file._path,
+            text = document.getText(),
+            editor = EditorManager.getActiveEditor(),
+            cursorPos = editor.getCursorPos(true, "start"),
+            request = {
+                line: cursorPos.line + 1,
+                column: cursorPos.ch + 1,
+                buffer: text,
+                filename: filename
+            };
 
-        var editor = EditorManager.getActiveEditor();
-        var cursorPos = editor.getCursorPos(true, "start");
+        $.extend(request, additionalParameters || {});
 
-        return {
-            line: cursorPos.line + 1,
-            column: cursorPos.ch + 1,
-            buffer: text,
-            filename: filename
-        };
+        return request;
     }
 
     function makeRequestAndRefreshDocument(service) {

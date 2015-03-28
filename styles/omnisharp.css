@@ -36,7 +36,7 @@
 }
 
 span.omnisharp-error {
-    background-image: url('images/error.gif');
+    background-image: url('images/wiggle.png');
     background-repeat: repeat-x;
     background-position: left bottom;
     padding-bottom: 2px;
@@ -44,7 +44,7 @@ span.omnisharp-error {
 }
 
 span.omnisharp-warning {
-    background-image: url('images/warning.gif');
+    background-image: url('images/wiggle-blue.png');
     background-repeat: repeat-x;
     background-position: left bottom;
     padding-bottom: 2px;
@@ -52,7 +52,7 @@ span.omnisharp-warning {
 }
 
 span.omnisharp-hidden {
-    background-image: url('images/warning.gif');
+    background-image: url('images/wiggle-blue.png');
     background-repeat: repeat-x;
     background-position: left bottom;
     padding-bottom: 2px;
@@ -65,26 +65,39 @@ span.intellisense-icon {
     display: inline-block;
     float: left;
     margin-left: 13px;
+    background-position: middle center;
 }
 
-span.method {
-    background-image: url('images/method.png');
+span.Method {
+    background-image: url('images/icons/autocomplete_method.png');
 }
 
-span.keyword, span.local, span.field {
-    background-image: url('images/field.png');
+span.Field, span.Local {
+    background-image: url('images/icons/autocomplete_field.png');
 }
 
-span.property {
-    background-image: url('images/property.png');
+span.Keyword {
+    background-image: url('images/icons/autocomplete_keyword.png');
 }
 
-span.namespace {
-    background-image: url('images/namespace.png');
+span.Property {
+    background-image: url('images/icons/auto_complete_property.png');
 }
 
-span.namedtype {
-    background-image: url('images/class.png');
+span.Namespace {
+    background-image: url('images/icons/autocomplete_namespace.png');
+}
+
+span.Class {
+    background-image: url('images/icons/autocomplete_class.png');
+}
+
+span.Enum {
+    background-image: url('images/icons/autocomplete_enum.png');
+}
+
+span.Parameter {
+    background-image: url('images/icons/autocomplete_field.png');
 }
 
 span.intellisense {
@@ -98,7 +111,7 @@ span.intellisense {
 omnisharp-references .inline-editor-header {
     line-height: 30px;
 }
- 
+
 .omnisharp-references .references {
     padding-bottom: 5px;
 }

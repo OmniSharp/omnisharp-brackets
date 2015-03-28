@@ -16,8 +16,14 @@ define(function (require, exports, module) {
         OmniCommands = require('modules/omniCommands'),
         OmniHandlers = require('modules/omniHandlers'),
         ReferenceDisplay = require('modules/referenceDisplay'),
-        Preferences = require('modules/preferences'),
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        prefs = PreferencesManager.getExtensionPrefs('omnisharp'),
         LanguageManager = brackets.getModule("language/LanguageManager");
+
+        prefs.definePreference('startOmnisharp', 'string', 'ctrl-alt-o');
+        prefs.definePreference('stopOmnisharp', 'string', 'ctrl-shift-o');
+        prefs.definePreference('fixUsings', 'string', 'ctrl-alt-u');
+        prefs.definePreference('formatDocument', 'string', 'ctrl-alt-f');
 
     function enable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
@@ -36,37 +42,34 @@ define(function (require, exports, module) {
     function createMenu() {
         var menu = Menus.addMenu('Omnisharp', 'omnisharp.omnisharp-brackets.omnisharpMenu');
 
-        menu.addMenuItem(OmniCommands.START_OMNISHARP);
-        menu.addMenuItem(OmniCommands.STOP_OMNISHARP);
-        menu.addMenuItem(OmniCommands.OPEN_PREFERENCES);
+        menu.addMenuItem(OmniCommands.START_OMNISHARP, prefs.get('startOmnisharp'));
+        menu.addMenuItem(OmniCommands.STOP_OMNISHARP, prefs.get('stopOmnisharp'));
         menu.addMenuDivider();
-        menu.addMenuItem(OmniCommands.FIX_USINGS);
-        menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT);
+        menu.addMenuItem(OmniCommands.FIX_USINGS, prefs.get('fixUsings'));
+        menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT, prefs.get('formatDocument'));
         menu.addMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY);
 
         disable();
     }
 
     AppInit.appReady(function () {
-        Preferences.loadPreferences(function () {
-            var csharpLanguage = LanguageManager.getLanguage("csharp");
-            csharpLanguage.addFileExtension("csx");
-            
-            OmniHandlers.init();
-            Omnisharp.init();
-            ContextMenu.init();
-            CodeInspection.init();
-            Intellisense.init();
-            Toolbar.init();
-            ReferenceDisplay.init();
+        var csharpLanguage = LanguageManager.getLanguage("csharp");
+        csharpLanguage.addFileExtension("csx");
 
-            ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
+        OmniHandlers.init();
+        Omnisharp.init();
+        ContextMenu.init();
+        CodeInspection.init();
+        Intellisense.init();
+        Toolbar.init();
+        ReferenceDisplay.init();
 
-            createMenu();
+        ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
 
-            $(Omnisharp).on('omnisharpReady', enable);
-            $(Omnisharp).on('omnisharpQuit', disable);
-            $(Omnisharp).on('omnisharpError', disable);
-        });
+        createMenu();
+
+        $(Omnisharp).on('omnisharpReady', enable);
+        $(Omnisharp).on('omnisharpQuit', disable);
+        $(Omnisharp).on('omnisharpError', disable);
     });
 });

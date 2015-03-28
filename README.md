@@ -28,4 +28,3 @@ Currently some of the funtionality is dependent upon the kind people at adobe ac
 | ------------- | ----------- |
 | OSX | `chmod -R a+x ~/Library/Application Support/Brackets/extensions/user/mat-mcloughlin.omnisharp`|
 | Linux | `chmod -R a+x ~/.config/Brackets/extensions/user/mat-mcloughlin.omnisharp`     |
-
