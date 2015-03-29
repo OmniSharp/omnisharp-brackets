@@ -12,7 +12,25 @@ define(function (require, exports, module) {
         Omnisharp = new NodeDomain('omnisharp-brackets', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
 
     var isRunning = false;
+    
+    function buildRequest(additionalParameters) {
+        var document = DocumentManager.getCurrentDocument(),
+            filename = document.file._path,
+            text = document.getText(),
+            editor = EditorManager.getActiveEditor(),
+            cursorPos = editor.getCursorPos(true, "start"),
+            request = {
+                line: cursorPos.line + 1,
+                column: cursorPos.ch + 1,
+                buffer: text,
+                filename: filename
+            };
 
+        $.extend(request, additionalParameters || {});
+
+        return request;
+    }
+    
     function start() {
         if (isRunning) {
             return;
@@ -104,24 +122,6 @@ define(function (require, exports, module) {
         Omnisharp.exec('stopOmnisharp');
     }
 
-    function buildRequest(additionalParameters) {
-        var document = DocumentManager.getCurrentDocument(),
-            filename = document.file._path,
-            text = document.getText(),
-            editor = EditorManager.getActiveEditor(),
-            cursorPos = editor.getCursorPos(true, "start"),
-            request = {
-                line: cursorPos.line + 1,
-                column: cursorPos.ch + 1,
-                buffer: text,
-                filename: filename
-            };
-
-        $.extend(request, additionalParameters || {});
-
-        return request;
-    }
-
     function init() {
         Omnisharp.on('omnisharpError', onOmnisharpError);
         Omnisharp.on('omnisharpQuit', onOmnisharpQuit);
@@ -144,5 +144,9 @@ define(function (require, exports, module) {
 
     exports.rename = function (request) {
         return makeRequestDeferred('rename', request);
+    };
+
+    exports.findSymbols = function (request) {
+        return makeRequestDeferred('findsymbols', request);
     };
 });
