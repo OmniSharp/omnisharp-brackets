@@ -13,7 +13,7 @@ define(function (require, exports, module) {
         mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp'),
         FileUtils = brackets.getModule('file/FileUtils');
 
-    function isCSharp() {
+    exports.isCSharp = function () {
         var document = DocumentManager.getCurrentDocument();
         if (document === null) {
             return;
@@ -21,40 +21,15 @@ define(function (require, exports, module) {
 
         var language = document.getLanguage();
         return language.getId() === 'csharp';
-    }
+    };
 
-    function buildRequest(additionalParameters) {
-        var document = DocumentManager.getCurrentDocument(),
-            filename = document.file._path,
-            text = document.getText(),
-            editor = EditorManager.getActiveEditor(),
-            cursorPos = editor.getCursorPos(true, "start"),
-            request = {
-                line: cursorPos.line + 1,
-                column: cursorPos.ch + 1,
-                buffer: text,
-                filename: filename
-            };
-
-        $.extend(request, additionalParameters || {});
-
-        return request;
-    }
-
-    function makeRequestAndRefreshDocument(service) {
+    exports.refreshDocument = function (res) {
         var document = DocumentManager.getCurrentDocument();
-        var req = buildRequest();
 
-        Omnisharp.makeRequest(service, req, function (err, res) {
-            if (err !== null) {
-                console.error(err);
-            }
+        document.setText(res.Buffer || res.Text);
+    };
 
-            document.setText(res.Buffer || res.Text);
-        });
-    }
-
-    function highlightCode(line) {
+    exports.highlightCode = function (line) {
         var stream = new CodeMirror.StringStream(line),
             result,
             node = document.createElement('span'),
@@ -74,16 +49,11 @@ define(function (require, exports, module) {
         }
 
         return node.innerHTML;
-    }
-
-    exports.isCSharp = isCSharp;
-    exports.highlightCode = highlightCode;
-    exports.buildRequest = buildRequest;
-    exports.makeRequestAndRefreshDocument = makeRequestAndRefreshDocument;
+    };
 
     exports.goto = function (res) {
         var unixPath = FileUtils.convertWindowsPathToUnixPath(res.FileName);
-        
+
         CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' }).done(function () {
             var editor = EditorManager.getActiveEditor();
             editor.setCursorPos(res.Line - 1, res.Column - 1, true);

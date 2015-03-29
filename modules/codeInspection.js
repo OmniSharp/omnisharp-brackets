@@ -29,9 +29,10 @@ define(function (require, exports, module) {
     }
 
     function setMark(problem, type) {
-        var token = getToken({ line: problem.Line - 1, ch: problem.Column - 1 });
-        var start = { line: problem.Line - 1, ch: problem.Column - 1 };
-        var end = { line: problem.EndLine === -1 ? problem.Line - 1 : problem.EndLine - 1, ch: problem.EndColumn === -1 ? problem.Column : problem.EndColumn - 1 };
+        var token = getToken({ line: problem.Line - 1, ch: problem.Column - 1 }),
+            start = { line: problem.Line - 1, ch: problem.Column - 1 },
+            end = { line: problem.EndLine === -1 ? problem.Line - 1 : problem.EndLine - 1, ch: problem.EndColumn === -1 ? problem.Column : problem.EndColumn - 1 };
+
         codeMirror.markText(start, end, { className: 'omnisharp-' + type });
     }
 
@@ -45,70 +46,44 @@ define(function (require, exports, module) {
         };
     }
 
-    function validateFile(text, fullPath) {
+    function scanFileAsync(text, fullPath) {
         editor = EditorManager.getActiveEditor();
         codeMirror = editor._codeMirror;
         clearMarks();
 
         var deferred = $.Deferred();
 
-        if (!isRunning) {
-            deferred.resolve({ errors: [] });
-            return deferred;
-        }
+        Omnisharp.codeCheck()
+            .done(function (res) {
+                var result = {
+                    errors: []
+                };
 
-        var data = Helpers.buildRequest();
+                if (res.Errors !== undefined) {
+                    result.errors = res.Errors.map(function (error) {
+                        return processProblem(error);
+                    });
+                }
 
-        Omnisharp.makeRequest('codecheck', data, function (err, data) {
-            if (err !== null) {
-                deferred.reject();
-                return deferred;
-            }
+                if (res.QuickFixes !== undefined) {
+                    result.errors = res.QuickFixes.map(function (quickFix) {
+                        return processProblem(quickFix);
+                    });
+                }
 
-            var result = {
-                errors: []
-            };
-
-            if (data.Errors !== undefined) {
-                result.errors = data.Errors.map(function (error) {
-                    return processProblem(error);
-                });
-            }
-
-            if (data.QuickFixes !== undefined) {
-                result.errors = data.QuickFixes.map(function (quickFix) {
-                    return processProblem(quickFix);
-                });
-            }
-
-            deferred.resolve(result);
-        });
+                deferred.resolve(result);
+            })
+            .fail(function () {
+                deferred.resolve({ errors: [] });
+            });
 
         return deferred.promise();
     }
 
-    function onOmnisharpReady() {
-        isRunning = true;
-
-        if (!isRegistered) {
-            CodeInspection.register('csharp', {
-                name: 'Omnisharp',
-                scanFileAsync: validateFile
-            });
-
-            isRegistered = true;
-        }
-    }
-
-    function onOmnisharpEnd() {
-        isRunning = false;
-    }
-
-    function init() {
-        $(Omnisharp).on('omnisharpReady', onOmnisharpReady);
-        $(Omnisharp).on('omnisharpQuit', onOmnisharpEnd);
-        $(Omnisharp).on('omnisharpError', onOmnisharpEnd);
-    }
-
-    exports.init = init;
+    exports.init = function () {
+        CodeInspection.register('csharp', {
+            name: 'Omnisharp',
+            scanFileAsync: scanFileAsync
+        });
+    };
 });

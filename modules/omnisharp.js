@@ -157,4 +157,12 @@ define(function (require, exports, module) {
     exports.rename = function (request) {
         return makeRequestDeferred('rename', request);
     };
+
+    exports.codeCheck = function (request) {
+        return makeRequestDeferred('codeCheck', request);
+    };
+
+    exports.codeFormat = function (request) {
+        return makeRequestDeferred('codeFormat', request);
+    };
 });

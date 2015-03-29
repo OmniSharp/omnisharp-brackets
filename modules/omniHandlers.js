@@ -12,22 +12,19 @@ define(function (require, exports, module) {
         RenameCommand = require('modules/rename'),
         GoToDefinitionCommand = require('modules/goToDefinition'),
         FindSymbols = require('modules/findSymbols'),
+        FormatCode = require('modules/formatCode'),
         ReferenceDisplay = require('modules/referenceDisplay');
 
     // function fixCodeIssue() {
     //     Helpers.makeRequestAndRefreshDocument('fixcodeissue');
     // }
 
-    function formatDocument() {
-        Helpers.makeRequestAndRefreshDocument('codeformat');
-    }
-
     // function fixUsings() {
     //     Helpers.makeRequestAndRefreshDocument('fixusings');
     // }
 
     function init() {
-        CommandManager.register(OmniStrings.CMD_FORMAT_DOCUMENT, OmniCommands.FORMAT_DOCUMENT, formatDocument);
+        CommandManager.register(OmniStrings.CMD_FORMAT_DOCUMENT, OmniCommands.FORMAT_DOCUMENT, FormatCode.formatFile);
         //CommandManager.register(OmniStrings.CMD_FIX_USINGS, OmniCommands.FIX_USINGS, fixUsings);
         CommandManager.register(OmniStrings.CMD_GO_TO_DEFINITION, OmniCommands.GO_TO_DEFINITION, GoToDefinitionCommand.exec);
         CommandManager.register(OmniStrings.CMD_RENAME, OmniCommands.RENAME, RenameCommand.exec);

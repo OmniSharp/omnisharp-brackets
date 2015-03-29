@@ -16,7 +16,7 @@ define(function (require, exports, module) {
         cleanTokenRegEx = /^[a-zA-Z0-9_]+$/,
         mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp'),
         useSnippet = true,
-        codeMirror = CodeMirror();
+        codeMirror = new CodeMirror();
 
     function isIdentifier(key) {
         return key.match(isIdentifierRegEx) !== null;
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         var editor = EditorManager.getActiveEditor(),
             codeMirror = editor._codeMirror;
 
-        return codeMirror.getTokenAt(cursor)
+        return codeMirror.getTokenAt(cursor);
     }
 
     function cleanToken(token) {
@@ -124,17 +124,7 @@ define(function (require, exports, module) {
         insertHintOnTab: true
     };
 
-    function omnisharpReady() {
-        CodeHintManager.registerHintProvider(intellisense, ['csharp'], 0);
-    }
-
-    function omnisharpQuit() {
-        CodeHintManager._removeHintProvider(intellisense, ['csharp']);
-    }
-
     exports.init = function () {
-        $(Omnisharp).on('omnisharpReady', omnisharpReady);
-        $(Omnisharp).on('omnisharpQuit', omnisharpQuit);
-        $(Omnisharp).on('omnisharpError', omnisharpQuit);
+        CodeHintManager.registerHintProvider(intellisense, ['csharp'], 0);
     };
 });
