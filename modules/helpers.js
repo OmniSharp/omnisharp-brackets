@@ -6,9 +6,12 @@ define(function (require, exports, module) {
 
     var EditorManager = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule('document/DocumentManager'),
+        CommandManager = brackets.getModule('command/CommandManager'),
+        Commands = brackets.getModule('command/Commands'),
         Omnisharp = require('modules/omnisharp'),
         CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
-        mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp');
+        mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp'),
+        FileUtils = brackets.getModule('file/FileUtils');
 
     function isCSharp() {
         var document = DocumentManager.getCurrentDocument();
@@ -77,4 +80,25 @@ define(function (require, exports, module) {
     exports.highlightCode = highlightCode;
     exports.buildRequest = buildRequest;
     exports.makeRequestAndRefreshDocument = makeRequestAndRefreshDocument;
+
+    exports.goto = function (res) {
+        var unixPath = FileUtils.convertWindowsPathToUnixPath(res.FileName);
+        
+        CommandManager.execute(Commands.CMD_ADD_TO_WORKINGSET_AND_OPEN, { fullPath: unixPath, paneId: 'first-pane' }).done(function () {
+            var editor = EditorManager.getActiveEditor();
+            editor.setCursorPos(res.Line - 1, res.Column - 1, true);
+        });
+    };
+
+    exports.escapeHtml = function (text) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+    };
 });

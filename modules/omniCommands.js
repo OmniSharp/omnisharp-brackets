@@ -7,11 +7,13 @@ define(function (require, exports, module) {
     var packageString = 'omnisharp.omnisharp-brackets.';
 
     exports.FORMAT_DOCUMENT = packageString + 'formatDocument';
-    exports.FIX_USINGS = packageString + 'fixUsings';
+    //exports.FIX_USINGS = packageString + 'fixUsings';
     exports.GO_TO_DEFINITION = packageString + 'goToDefinition';
     exports.RENAME = packageString + 'rename';
     exports.START_OMNISHARP = packageString + 'startOmnisharp';
     exports.STOP_OMNISHARP = packageString + 'stopOmnisharp';
     exports.FIX_CODE_ISSUE = packageString + 'fixCodeIssue';
     exports.RELOAD_REFERENCE_DISPLAY = packageString + 'reloadReferenceDisplay';
+    exports.FIND_SYMBOLS = packageString + 'findSymbols';
+
 });

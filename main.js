@@ -20,23 +20,26 @@ define(function (require, exports, module) {
         prefs = PreferencesManager.getExtensionPrefs('omnisharp'),
         LanguageManager = brackets.getModule("language/LanguageManager");
 
-        prefs.definePreference('startOmnisharp', 'string', 'alt-o');
-        prefs.definePreference('stopOmnisharp', 'string', 'alt-shift-o');
-        prefs.definePreference('fixUsings', 'string', 'ctrl-alt-u');
-        prefs.definePreference('formatDocument', 'string', 'ctrl-alt-f');
+    prefs.definePreference('startOmnisharp', 'string', 'alt-o');
+    prefs.definePreference('stopOmnisharp', 'string', 'alt-shift-o');
+    prefs.definePreference('fixUsings', 'string', 'ctrl-alt-u');
+    prefs.definePreference('formatDocument', 'string', 'ctrl-alt-f');
+    prefs.definePreference('findSymbols', 'string', 'ctrl-alt-t');
 
     function enable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(false);
         CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(true);
-        CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
+        //CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(true);
+        CommandManager.get(OmniCommands.FIND_SYMBOLS).setEnabled(true);
     }
 
     function disable() {
         CommandManager.get(OmniCommands.START_OMNISHARP).setEnabled(true);
         CommandManager.get(OmniCommands.STOP_OMNISHARP).setEnabled(false);
-        CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
+        //CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(false);
+        CommandManager.get(OmniCommands.FIND_SYMBOLS).setEnabled(false);
     }
 
     function createMenu() {
@@ -45,8 +48,9 @@ define(function (require, exports, module) {
         menu.addMenuItem(OmniCommands.START_OMNISHARP, prefs.get('startOmnisharp'));
         menu.addMenuItem(OmniCommands.STOP_OMNISHARP, prefs.get('stopOmnisharp'));
         menu.addMenuDivider();
-        menu.addMenuItem(OmniCommands.FIX_USINGS, prefs.get('fixUsings'));
+        //menu.addMenuItem(OmniCommands.FIX_USINGS, prefs.get('fixUsings'));
         menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT, prefs.get('formatDocument'));
+        menu.addMenuItem(OmniCommands.FIND_SYMBOLS, prefs.get('findSymbols'));
         menu.addMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY);
 
         disable();
