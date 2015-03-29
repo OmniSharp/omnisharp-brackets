@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, $, brackets, window, */
+/*global define, $, brackets, window, Mustache*/
 
 define(function (require, exports, module) {
     'use strict';
@@ -22,18 +22,20 @@ define(function (require, exports, module) {
             var data = Helpers.buildRequest();
             data.renameto = renameTo;
 
-            Omnisharp.makeRequest('rename', data, function (err, data) {
-                data.Changes.forEach(function (change) {
-                    var unixPath = FileUtils.convertWindowsPathToUnixPath(change.FileName);
-                    DocumentManager.getDocumentForPath(unixPath).done(function (document) {
-                        document.setText(change.Buffer);
+            Omnisharp.rename({renameTo: renameTo})
+                .done(function (res) {
+                    res.Changes.forEach(function (change) {
+                        var unixPath = FileUtils.convertWindowsPathToUnixPath(change.FileName);
+
+                        DocumentManager.getDocumentForPath(unixPath).done(function (document) {
+                            document.setText(change.Buffer);
+                        });
                     });
                 });
-            });
         }
     }
 
-    exports.exec = function() {
+    exports.exec = function () {
         var currentName = EditorManager.getCurrentFullEditor().getSelectedText();
 
         Dialogs.showModalDialog(
@@ -52,10 +54,7 @@ define(function (require, exports, module) {
         $input.select();
         $input.keyup(function (event) {
             if (event.keyCode === 13) {
-                Dialogs.cancelModalDialogIfOpen(
-                    DefaultDialogs.DIALOG_ID_SAVE_CLOSE,
-                    'renameOk'
-                );
+                Dialogs.cancelModalDialogIfOpen(DefaultDialogs.DIALOG_ID_SAVE_CLOSE, 'renameOk');
             }
         });
     };

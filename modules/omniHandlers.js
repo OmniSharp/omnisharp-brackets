@@ -9,8 +9,8 @@ define(function (require, exports, module) {
         Omnisharp = require('modules/omnisharp'),
         OmniCommands = require('modules/omniCommands'),
         OmniStrings = require('modules/omniStrings'),
-        RenameCommand = require('commands/rename'),
-        goToDefinitionCommand = require('commands/goToDefinition'),
+        RenameCommand = require('modules/rename'),
+        GoToDefinitionCommand = require('modules/goToDefinition'),
         FindSymbols = require('modules/findSymbols'),
         ReferenceDisplay = require('modules/referenceDisplay');
 
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     function init() {
         CommandManager.register(OmniStrings.CMD_FORMAT_DOCUMENT, OmniCommands.FORMAT_DOCUMENT, formatDocument);
         //CommandManager.register(OmniStrings.CMD_FIX_USINGS, OmniCommands.FIX_USINGS, fixUsings);
-        CommandManager.register(OmniStrings.CMD_GO_TO_DEFINITION, OmniCommands.GO_TO_DEFINITION, goToDefinitionCommand.exec);
+        CommandManager.register(OmniStrings.CMD_GO_TO_DEFINITION, OmniCommands.GO_TO_DEFINITION, GoToDefinitionCommand.exec);
         CommandManager.register(OmniStrings.CMD_RENAME, OmniCommands.RENAME, RenameCommand.exec);
         CommandManager.register(OmniStrings.CMD_START_OMNISHARP, OmniCommands.START_OMNISHARP, Omnisharp.start);
         CommandManager.register(OmniStrings.CMD_STOP_OMNISHARP, OmniCommands.STOP_OMNISHARP, Omnisharp.stop);

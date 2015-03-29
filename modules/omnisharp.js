@@ -12,7 +12,7 @@ define(function (require, exports, module) {
         Omnisharp = new NodeDomain('omnisharp-brackets', ExtensionUtils.getModulePath(module, '../node/omnisharp'));
 
     var isRunning = false;
-    
+
     function buildRequest(additionalParameters) {
         var document = DocumentManager.getCurrentDocument(),
             filename = document.file._path,
@@ -30,7 +30,7 @@ define(function (require, exports, module) {
 
         return request;
     }
-    
+
     function start() {
         if (isRunning) {
             return;
@@ -148,5 +148,13 @@ define(function (require, exports, module) {
 
     exports.findSymbols = function (request) {
         return makeRequestDeferred('findsymbols', request);
+    };
+
+    exports.gotoDefinition = function (request) {
+        return makeRequestDeferred('gotoDefinition', request);
+    };
+
+    exports.rename = function (request) {
+        return makeRequestDeferred('rename', request);
     };
 });
