@@ -8,7 +8,6 @@ define(function (require, exports, module) {
         DocumentManager = brackets.getModule('document/DocumentManager'),
         CommandManager = brackets.getModule('command/CommandManager'),
         Commands = brackets.getModule('command/Commands'),
-        Omnisharp = require('modules/omnisharp'),
         CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         mode = CodeMirror.getMode(CodeMirror.defaults, 'text/x-csharp'),
         FileUtils = brackets.getModule('file/FileUtils');

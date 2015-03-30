@@ -18,7 +18,8 @@ define(function (require, exports, module) {
         ReferenceDisplay = require('modules/referenceDisplay'),
         PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
         prefs = PreferencesManager.getExtensionPrefs('omnisharp'),
-        LanguageManager = brackets.getModule("language/LanguageManager");
+        LanguageManager = brackets.getModule("language/LanguageManager"),
+        Console = require('modules/console');
 
     prefs.definePreference('startOmnisharp', 'string', 'alt-o');
     prefs.definePreference('stopOmnisharp', 'string', 'alt-shift-o');
@@ -67,6 +68,7 @@ define(function (require, exports, module) {
         Intellisense.init();
         Toolbar.init();
         ReferenceDisplay.init();
+        Console.init();
 
         ExtensionUtils.loadStyleSheet(module, 'styles/omnisharp.css');
 

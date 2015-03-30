@@ -120,10 +120,12 @@ maxerr: 50, node: true */
             _omnisharpProcess = spawn(executable, args);
 
             _omnisharpProcess.stdout.on('data', function (data) {
+                _domainManager.emitEvent(_domainName, 'omnisharpStd', data.toString());
                 console.info(data.toString());
             });
 
             _omnisharpProcess.stderr.on('data', function (data) {
+                _domainManager.emitEvent(_domainName, 'omnisharpStd', data.toString());
                 console.info(data.toString());
             });
 
@@ -175,7 +177,7 @@ maxerr: 50, node: true */
         if (!_domainManager.hasDomain(_domainName)) {
             _domainManager.registerDomain(_domainName, {
                 major: 0,
-                minor: 1
+                minor: 2
             });
         }
 
@@ -223,6 +225,15 @@ maxerr: 50, node: true */
             ]
         );
 
+        _domainManager.registerEvent(
+            _domainName,
+            'omnisharpStd',
+            [{
+                name: 'data',
+                type: 'string',
+                description: 'std output'
+            }]
+        );
 
         _domainManager.registerEvent(
             _domainName,

@@ -102,6 +102,10 @@ define(function (require, exports, module) {
         $(exports).triggerHandler('omnisharpStarting');
     }
 
+    function onOmnisharpStd(e, data) {
+        $(exports).triggerHandler('omnisharpStd', data);
+    }
+
     function onActiveEditorChange(event, newActive) {
         if (newActive === null) {
             return;
@@ -127,6 +131,7 @@ define(function (require, exports, module) {
         Omnisharp.on('omnisharpQuit', onOmnisharpQuit);
         Omnisharp.on('omnisharpReady', onOmnisharpReady);
         Omnisharp.on('omnisharpStarting', onOmnisharpStarting);
+        Omnisharp.on('omnisharpStd', onOmnisharpStd);
         EditorManager.on('activeEditorChange', onActiveEditorChange);
         ProjectManager.on('beforeAppClose', kill);
         ProjectManager.on('projectClose', kill);
