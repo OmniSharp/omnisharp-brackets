@@ -94,7 +94,7 @@ define(function (require, exports, module) {
                             hints: completions,
                             match: null,
                             selectInitial: true,
-                            handleWideResults: true
+                            handleWideResults: false
                         });
                     })
                     .fail(deferred.reject);

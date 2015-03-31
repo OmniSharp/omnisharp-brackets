@@ -15,5 +15,5 @@ define(function (require, exports, module) {
     exports.FIX_CODE_ISSUE = packageString + 'fixCodeIssue';
     exports.RELOAD_REFERENCE_DISPLAY = packageString + 'reloadReferenceDisplay';
     exports.FIND_SYMBOLS = packageString + 'findSymbols';
-
+    exports.SHOW_CONSOLE = packageString + 'showConsole';
 });
