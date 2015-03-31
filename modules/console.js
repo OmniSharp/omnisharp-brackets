@@ -18,11 +18,11 @@ define(function (require, exports, module) {
     }
 
     function render() {
-		var $console = _panel.$panel.find(".console"),
+        var $console = _panel.$panel.find(".console"),
             $element = "",
-			i = 0;
+            i = 0;
 
-		for (i = 0; i < _logData.length; i++) {
+        for (i = 0; i < _logData.length; i++) {
             if (_logData[i].text === '' || _logData[i].type !== _currentPanel) {
                 continue;
             }
@@ -32,25 +32,24 @@ define(function (require, exports, module) {
             $element.val(_logData[i].text);
             $element.addClass(_logData[i].type);
 
-			$console.append($element);
-		}
+            $console.append($element);
+        }
         $console.animate({ scrollTop: $console[0].scrollHeight }, 20);
-	}
+    }
 
     function add(msg, type) {
-		var texts = msg.toString().split('\n'),
-			i = 0;
+        var texts = msg.toString().split('\n'),
+            i = 0;
 
-		for (i = 0; i < texts.length; i++) {
-			_logData.push({type: type, text: texts[i]});
-		}
+        for (i = 0; i < texts.length; i++) {
+            _logData.push({type: type, text: texts[i]});
+        }
 
         render();
     }
 
     exports.init = function() {
         _panel = WorkspaceManager.createBottomPanel('omnisharp.console', $(ConsoleTemplate));
-        _panel.show();
 
         _panel.$panel.find(".close").on("click", function () {
             _panel.hide();
@@ -71,5 +70,9 @@ define(function (require, exports, module) {
         $(Omnisharp).on('omnisharpStd', function(e,     data) {
             add(data, 'omnisharp');
         });
+    };
+
+    exports.show = function() {
+        _panel.show();
     };
 });

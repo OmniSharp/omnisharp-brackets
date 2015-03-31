@@ -1,9 +1,10 @@
 {
   "name": "omnisharp-brackets",
   "title": "omnisharp-brackets",
-  "description": "C# IDE plugin for brackets.io.\nOmniSharp is a family of Open Source projects, each with one goal - To enable great .NET development in YOUR editor of choice.",
+  "description": "C# IDE plugin for brackets.io.\nOmniSharp is a family of Open Source projects, each with one goal - To enable great .NET development in YOUR editor of choice.\n\n IMPORTANT: You must run the install script in the extension directory for the plugin to work.\n\nThis is because of a limitation on the size of the extensions size",
   "homepage": "https://github.com/OmniSharp/omnisharp-brackets",
-  "version": "0.0.3",
+  "version": "0.3.0",
+  "private": true,
   "author": "Mathew McLoughlin mathew.mcloughlin@gmail.com (http://omnisharp.net)",
   "license": "MIT",
   "engines": {

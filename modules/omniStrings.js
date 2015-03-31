@@ -13,4 +13,6 @@ define(function (require, exports, module) {
     //exports.CMD_FIX_CODE_ISSUE = 'Fix Code Issue';
     exports.CMD_RELOAD_REFERENCE_DISPLAY = 'Reload References Display';
     exports.CMD_FIND_SYMBOLS = 'Find Symbols';
+    exports.CMD_SHOW_CONSOLE = 'Show Console';
+
 });

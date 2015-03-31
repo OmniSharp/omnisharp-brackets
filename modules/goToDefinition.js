@@ -8,8 +8,6 @@ define(function (require, exports, module) {
         Helpers = require('modules/helpers');
 
     exports.exec = function () {
-        var req = Helpers.buildRequest();
-
         Omnisharp.gotoDefinition()
             .done(function (res) {
                 if (res.FileName === null) {

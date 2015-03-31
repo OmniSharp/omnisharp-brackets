@@ -19,9 +19,6 @@ define(function (require, exports, module) {
         var renameTo = $input.val();
 
         if (buttonId === 'renameOk' && renameTo !== undefined) {
-            var data = Helpers.buildRequest();
-            data.renameto = renameTo;
-
             Omnisharp.rename({renameTo: renameTo})
                 .done(function (res) {
                     res.Changes.forEach(function (change) {

@@ -33,6 +33,7 @@ define(function (require, exports, module) {
         //CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(true);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(true);
         CommandManager.get(OmniCommands.FIND_SYMBOLS).setEnabled(true);
+        CommandManager.get(OmniCommands.RELOAD_REFERENCE_DISPLAY).setEnabled(true);
     }
 
     function disable() {
@@ -41,6 +42,7 @@ define(function (require, exports, module) {
         //CommandManager.get(OmniCommands.FIX_USINGS).setEnabled(false);
         CommandManager.get(OmniCommands.FORMAT_DOCUMENT).setEnabled(false);
         CommandManager.get(OmniCommands.FIND_SYMBOLS).setEnabled(false);
+        CommandManager.get(OmniCommands.RELOAD_REFERENCE_DISPLAY).setEnabled(false);
     }
 
     function createMenu() {
@@ -53,6 +55,7 @@ define(function (require, exports, module) {
         menu.addMenuItem(OmniCommands.FORMAT_DOCUMENT, prefs.get('formatDocument'));
         menu.addMenuItem(OmniCommands.FIND_SYMBOLS, prefs.get('findSymbols'));
         menu.addMenuItem(OmniCommands.RELOAD_REFERENCE_DISPLAY);
+        menu.addMenuItem(OmniCommands.SHOW_CONSOLE);
 
         disable();
     }

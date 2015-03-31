@@ -100,6 +100,10 @@ span.Parameter {
     background-image: url('images/icons/autocomplete_field.png');
 }
 
+span.Struct {
+    background-image: url('images/icons/autocomplete_struct.png');
+}
+
 span.intellisense {
     line-height: 16px !important;
     display: inline-block;
@@ -162,19 +166,6 @@ omnisharp-references .inline-editor-header {
 
 #editor-console .console > input.warn {
     color: rgb(112, 112, 0);
-}
-
-
-#editor-console-icon {
-    background: url("../assets/icon.png");
-    background-size: 22px;
-    background-position: center;
-}
-
-#editor-console-icon.on {
-    background: url("../assets/icon-on.png");
-    background-size: 22px;
-    background-position: center;
 }
 
 #editor-console .label {
