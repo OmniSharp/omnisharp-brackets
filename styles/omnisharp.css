@@ -100,6 +100,10 @@ span.Parameter {
     background-image: url('images/icons/autocomplete_field.png');
 }
 
+span.Struct {
+    background-image: url('images/icons/autocomplete_struct.png');
+}
+
 span.intellisense {
     line-height: 16px !important;
     display: inline-block;
@@ -123,4 +127,50 @@ omnisharp-references .inline-editor-header {
 
 .omnisharp-reference-display a {
     cursor: pointer;
+}
+
+#editor-console .margin-left {
+    margin-left: 15px;
+}
+
+#editor-console .margin-left-small {
+    margin-left: 5px;
+}
+
+#editor-console .console {
+	overflow-y: scroll;
+	overflow-x: hidden;
+    border-top: 1px solid lightgrey;
+}
+
+#editor-console .console > input {
+	width: 100%;
+	margin: 0px -40px 0px 0px;
+	background: none;
+	border: 0px;
+	outline: none;
+	box-shadow:none;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 11px;
+    padding: 2px;
+}
+
+#editor-console .console > input:focus {
+	outline: none;
+	box-shadow:none;
+}
+
+#editor-console .console > input.error {
+    color: red;
+}
+
+#editor-console .console > input.warn {
+    color: rgb(112, 112, 0);
+}
+
+#editor-console .label {
+    text-shadow: none;
+    margin-left: 4px;
+    margin-bottom: -1px;
+    margin-right: -6px;
 }
